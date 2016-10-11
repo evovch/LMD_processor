@@ -9,7 +9,7 @@ cls_RootHit::cls_RootHit()
 
 }
 
-cls_RootHit::cls_RootHit(uint64_t p_ts, uint8_t p_ch, uint16_t p_rawAdc, int32_t p_adc) :
+cls_RootHit::cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc) :
     fTimestamp(p_ts),
     fChannel(p_ch),
     fRawAdcVal(p_rawAdc),

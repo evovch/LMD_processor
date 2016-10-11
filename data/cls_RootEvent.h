@@ -14,7 +14,7 @@ public: // methods
     cls_RootEvent();
 
     cls_RootHit* AddHit(cls_RootHit* p_sourceHit);
-    cls_RootHit* AddHit(uint64_t p_ts, uint8_t p_ch, uint16_t p_rawAdc, int32_t p_adc);
+    cls_RootHit* AddHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc);
     void Clear(Option_t *option ="");
 
 private: // data members

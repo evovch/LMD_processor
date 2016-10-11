@@ -6,6 +6,7 @@
  * This value has physical meaning.
  */
 
+#include <Rtypes.h>
 #include <TObject.h>
 
 class cls_RootHit : public TObject
@@ -13,7 +14,7 @@ class cls_RootHit : public TObject
 public: // methods
 
     cls_RootHit();
-    cls_RootHit(uint64_t p_ts, uint8_t p_ch, uint16_t p_rawAdc, int32_t p_adc);
+    cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc);
     // Copy constructor
     cls_RootHit(cls_RootHit* p_sourceHit);
 
@@ -23,12 +24,12 @@ public: // methods
 
 private: // data members
 
-    uint64_t fTimestamp;
-    //uint8_t fFebID;       // hooks for further development
-    //uint8_t fChipID;      // hooks for further development
-    uint8_t fChannel;
-    uint16_t fRawAdcVal;
-    int32_t fAdcVal;      // (pedestal -raw adc val)
+    ULong64_t fTimestamp;
+    //UChar_t fFebID;       // hooks for further development
+    //UChar_t fChipID;      // hooks for further development
+    UChar_t fChannel;
+    UShort_t fRawAdcVal;
+    Int_t fAdcVal;      // (pedestal -raw adc val)
 
 public: // switch off this shit for time being
     ClassDef(cls_RootHit,1)

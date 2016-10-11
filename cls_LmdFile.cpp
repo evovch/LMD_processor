@@ -174,10 +174,10 @@ void cls_LmdFile::StartProcessing(QString p_filename)
 
     this->RunUnpacking();
     this->RunEventBuilding();
-    //this->ExportEventsRootTree();
-    this->RunEventsAnalysis();
-    this->ExportHistos();
-    this->ShowHistos();
+    this->ExportEventsRootTree();
+    //this->RunEventsAnalysis();
+    //this->ExportHistos();
+    //this->ShowHistos();
 }
 
 // =============================================================================================================================
@@ -430,17 +430,17 @@ void cls_LmdFile::ExportEventsRootTree(void)
 
 
         // Loop over the hits of the current event
-        std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_eventHitsIter;
+        std::multimap< ULong64_t, std::pair<UChar_t, UShort_t> >::iterator v_eventHitsIter;
         for (v_eventHitsIter = v_curEvent.fEventTimeAdcMap.begin(); v_eventHitsIter != v_curEvent.fEventTimeAdcMap.end(); ++v_eventHitsIter) {
 
             // Extract time, channel and adc values from the hit
-            uint64_t v_curHitTime = (*v_eventHitsIter).first;
-            uint8_t v_curHitChannel = (*v_eventHitsIter).second.first;
-            uint16_t v_curHitAdc = (*v_eventHitsIter).second.second;
+            ULong64_t v_curHitTime = (*v_eventHitsIter).first;
+            UChar_t v_curHitChannel = (*v_eventHitsIter).second.first;
+            UShort_t v_curHitAdc = (*v_eventHitsIter).second.second;
 
             // Extract REAL ADC value by subtracting the pedestal
             //TODO check data types and casting...
-            int32_t v_realADCval = (int32_t)fPedestals[v_curHitChannel] - (int32_t)v_curHitAdc;
+            Int_t v_realADCval = (int32_t)fPedestals[v_curHitChannel] - (int32_t)v_curHitAdc;
 
             //printf ("%ld\t%d\t%d\t%d\n", v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval);
 
@@ -480,10 +480,10 @@ void cls_LmdFile::RunEventsAnalysis(void)
         cls_Event v_curEvent = *v_eventsIter;
 
         // The event contains at least one hit so here we store this first (or possibly only) hit of the current event.
-        std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_eventHitsIter = v_curEvent.fEventTimeAdcMap.begin();
+        std::multimap< ULong64_t, std::pair<UChar_t, UShort_t> >::iterator v_eventHitsIter = v_curEvent.fEventTimeAdcMap.begin();
 
         // The timestamp of the first hit
-        uint64_t v_curEventStartTime = (*v_eventHitsIter).first;
+        ULong64_t v_curEventStartTime = (*v_eventHitsIter).first;
         // Fill into the histogram the distance between the first hit of the current event and the first hit of the previous event
         if (v_lastEventStartTime != 0) {
             fhDistanceBetwEvents->Fill(v_curEventStartTime - v_lastEventStartTime);
