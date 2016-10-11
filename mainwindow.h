@@ -17,7 +17,6 @@ public:
 
 public slots:
     void ImportFile(void);
-    void ImportPedestals(void);
 
     void SelectDataFile(void);
     void SelectPedestalsFile(void);

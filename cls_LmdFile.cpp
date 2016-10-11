@@ -145,8 +145,11 @@ unsigned int cls_LmdFile::ExportHistos(void)
 
 void cls_LmdFile::ShowHistos(void)
 {
-    cls_HistoWidget* v_histoW = new cls_HistoWidget(fhAdcSumPerEvent);
+    /*cls_HistoWidget* v_histoW = new cls_HistoWidget(fhAdcSumPerEvent);
     v_histoW->show();
+    */
+
+    //TODO implement what you want here
 }
 
 // =============================================================================================================================
@@ -174,10 +177,10 @@ void cls_LmdFile::StartProcessing(QString p_filename)
 
     this->RunUnpacking();
     this->RunEventBuilding();
-    this->ExportEventsRootTree();
-    //this->RunEventsAnalysis();
-    //this->ExportHistos();
-    //this->ShowHistos();
+    //this->ExportEventsRootTree();
+    this->RunEventsAnalysis();
+    this->ExportHistos();
+    this->ShowHistos();
 }
 
 // =============================================================================================================================
@@ -418,7 +421,8 @@ void cls_LmdFile::ExportEventsRootTree(void)
     TFile f("tree4.root","RECREATE");
     TTree t4("t4","A Tree with Events");
     cls_RootEvent *v_event = new cls_RootEvent();
-    t4.Branch("event_branch", "cls_RootEvent", &v_event, 32000, 0);
+    //t4.Branch("event_branch", "cls_RootEvent", &v_event, 32000, 0);
+    t4.Branch("cls_RootEvent", &v_event);
 
     // Loop over the events
     for (std::vector<cls_Event>::iterator v_eventsIter = fEvents.begin(); v_eventsIter != fEvents.end(); ++v_eventsIter)

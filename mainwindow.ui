@@ -39,7 +39,7 @@
       <item>
        <widget class="QLineEdit" name="lineEdit">
         <property name="text">
-         <string>/home/evovch/Documents/NeuRad_tests_data/</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -88,7 +88,7 @@
       <item>
        <widget class="QLineEdit" name="lineEdit_2">
         <property name="text">
-         <string>/home/evovch/Documents/NeuRad_tests_data/pedestals_TestTriggerMode_680pF_10minutes_7okt.dat</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -137,7 +137,7 @@
       <item>
        <widget class="QLineEdit" name="lineEdit_3">
         <property name="text">
-         <string>/home/evovch/Documents/NeuRad_tests_data/analysis/analysis.root</string>
+         <string/>
         </property>
        </widget>
       </item>

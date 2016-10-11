@@ -6,15 +6,38 @@
 
 #include "cls_LmdFile.h"
 
+#include <fstream>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    std::string readString;
+
+    std::ifstream inputFile("/tmp/LMD_processor.txt");
+    inputFile >> readString;
+    ui->lineEdit->setText(QString::fromStdString(readString));
+    inputFile >> readString;
+    ui->lineEdit_2->setText(QString::fromStdString(readString));
+    inputFile >> readString;
+    ui->lineEdit_3->setText(QString::fromStdString(readString));
 }
 
 MainWindow::~MainWindow()
 {
+    QString inputFilename = ui->lineEdit->text();
+    QString pedestalFilename = ui->lineEdit_2->text();
+    QString outputFilename = ui->lineEdit_3->text();
+
+    std::ofstream outputFile("/tmp/LMD_processor.txt");
+    outputFile << inputFilename.toStdString() << std::endl;
+    outputFile << pedestalFilename.toStdString() << std::endl;
+    outputFile << outputFilename.toStdString() << std::endl;
+
+    outputFile.close();
+
     delete ui;
 }
 
@@ -34,12 +57,7 @@ void MainWindow::ImportFile(void)
 
     delete v_inputFile;
 
-    ui->label->setText("Imported. Ready.");
-}
-
-void MainWindow::ImportPedestals(void)
-{
-/*obsolete*/
+    ui->label->setText("Finished analysis.");
 }
 
 void MainWindow::SelectDataFile(void)
@@ -47,7 +65,7 @@ void MainWindow::SelectDataFile(void)
     QFileDialog v_dial;
     v_dial.setFileMode(QFileDialog::ExistingFile);
     v_dial.setNameFilter(tr("Data files (*.lmd)"));
-    v_dial.setDirectory("/home/evovch/Documents/NeuRad_tests_data/");
+    v_dial.setDirectory("~");
 
     QStringList v_fileNames;
     if (v_dial.exec()) {
@@ -61,7 +79,7 @@ void MainWindow::SelectPedestalsFile(void)
     QFileDialog v_dial;
     v_dial.setFileMode(QFileDialog::ExistingFile);
     v_dial.setNameFilter(tr("Pedestal files (*.dat)"));
-    v_dial.setDirectory("/home/evovch/Documents/NeuRad_tests_data/");
+    v_dial.setDirectory("~");
 
     QStringList v_fileNames;
     if (v_dial.exec()) {
@@ -73,7 +91,7 @@ void MainWindow::SelectPedestalsFile(void)
 void MainWindow::SelectOutputFile(void)
 {
     QString v_fileName = QFileDialog::getSaveFileName(this, tr("Save analysis file"),
-                               "/home/evovch/Documents/NeuRad_tests_data/analysis.root",
+                               "~/analysis.root",
                                tr("Root files (*.root)"));
     ui->lineEdit_3->setText(v_fileName);
 }
