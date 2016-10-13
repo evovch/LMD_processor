@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include <string>
+
 namespace Ui {
 class MainWindow;
 }
@@ -24,6 +26,10 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+
+    std::string fInputFolderPath;
+    std::string fPedestalsFolderPath;
+    std::string fOutputFolderPath;
 };
 
 #endif // MAINWINDOW_H

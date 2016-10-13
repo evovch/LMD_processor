@@ -1,12 +1,10 @@
 #include "cls_RootHit.h"
 
-// switch off this shit for time being
 ClassImp(cls_RootHit)
 
 // Default constructor should not be used
 cls_RootHit::cls_RootHit()
 {
-
 }
 
 cls_RootHit::cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc) :
@@ -15,7 +13,6 @@ cls_RootHit::cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t 
     fRawAdcVal(p_rawAdc),
     fAdcVal(p_adc)
 {
-
 }
 
 cls_RootHit::cls_RootHit(cls_RootHit* p_sourceHit) :
@@ -24,7 +21,6 @@ cls_RootHit::cls_RootHit(cls_RootHit* p_sourceHit) :
     fRawAdcVal(p_sourceHit->fRawAdcVal),
     fAdcVal(p_sourceHit->fAdcVal)
 {
-
 }
 
 void cls_RootHit::Clear(Option_t * /*option*/)

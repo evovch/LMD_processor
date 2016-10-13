@@ -177,7 +177,7 @@ void cls_LmdFile::StartProcessing(QString p_filename)
 
     this->RunUnpacking();
     this->RunEventBuilding();
-    //this->ExportEventsRootTree();
+    this->ExportEventsRootTree();
     this->RunEventsAnalysis();
     this->ExportHistos();
     this->ShowHistos();
@@ -422,7 +422,7 @@ void cls_LmdFile::ExportEventsRootTree(void)
     TTree t4("t4","A Tree with Events");
     cls_RootEvent *v_event = new cls_RootEvent();
     //t4.Branch("event_branch", "cls_RootEvent", &v_event, 32000, 0);
-    t4.Branch("cls_RootEvent", &v_event);
+    t4.Branch("event_branch", "cls_RootEvent", v_event);
 
     // Loop over the events
     for (std::vector<cls_Event>::iterator v_eventsIter = fEvents.begin(); v_eventsIter != fEvents.end(); ++v_eventsIter)
@@ -431,7 +431,6 @@ void cls_LmdFile::ExportEventsRootTree(void)
         cls_Event v_curEvent = *v_eventsIter;
 
         //cout << "================================================================================================" << endl;
-
 
         // Loop over the hits of the current event
         std::multimap< ULong64_t, std::pair<UChar_t, UShort_t> >::iterator v_eventHitsIter;

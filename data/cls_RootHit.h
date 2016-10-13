@@ -6,14 +6,17 @@
  * This value has physical meaning.
  */
 
-#include <Rtypes.h>
 #include <TObject.h>
 
 class cls_RootHit : public TObject
 {
 public: // methods
 
+    // Default constructor should not be used
     cls_RootHit();
+    /*virtual ~cls_RootHit();*/
+
+    // Constructor with full parameters list
     cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc);
     // Copy constructor
     cls_RootHit(cls_RootHit* p_sourceHit);
@@ -31,8 +34,8 @@ private: // data members
     UShort_t fRawAdcVal;
     Int_t fAdcVal;      // (pedestal -raw adc val)
 
-public: // switch off this shit for time being
-    ClassDef(cls_RootHit,1)
+public:
+    ClassDef(cls_RootHit,1);
 };
 
 #endif // CLS_ROOTHIT_H
