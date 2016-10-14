@@ -23,6 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_2->setText(QString::fromStdString(readString));
     inputFile >> readString;
     ui->lineEdit_3->setText(QString::fromStdString(readString));
+    inputFile >> readString;
+    ui->lineEdit_4->setText(QString::fromStdString(readString));
+    inputFile >> readString;
+    ui->lineEdit_5->setText(QString::fromStdString(readString));
 }
 
 MainWindow::~MainWindow()
@@ -30,11 +34,15 @@ MainWindow::~MainWindow()
     QString inputFilename = ui->lineEdit->text();
     QString pedestalFilename = ui->lineEdit_2->text();
     QString outputFilename = ui->lineEdit_3->text();
+    QString effCalibFilename = ui->lineEdit_4->text();
+    QString graphsFilename = ui->lineEdit_5->text();
 
     std::ofstream outputFile("/tmp/LMD_processor.txt");
     outputFile << inputFilename.toStdString() << std::endl;
     outputFile << pedestalFilename.toStdString() << std::endl;
     outputFile << outputFilename.toStdString() << std::endl;
+    outputFile << effCalibFilename.toStdString() << std::endl;
+    outputFile << graphsFilename.toStdString() << std::endl;
 
     outputFile.close();
 
@@ -48,11 +56,13 @@ void MainWindow::ImportFile(void)
 
     QString v_filename = ui->lineEdit->text();
     QString v_pedFilename = ui->lineEdit_2->text();
+    QString v_effCalibFilename = ui->lineEdit_4->text();
 
     cls_LmdFile* v_inputFile = new cls_LmdFile();
     v_inputFile->SetOutputAnalysisFile(ui->lineEdit_3->text());
 
     v_inputFile->ImportPedestals(v_pedFilename);
+    v_inputFile->ImportEffCalib(v_effCalibFilename);
     v_inputFile->StartProcessing(v_filename);
 
     delete v_inputFile;
@@ -94,4 +104,32 @@ void MainWindow::SelectOutputFile(void)
                                "~/analysis.root",
                                tr("Root files (*.root)"));
     ui->lineEdit_3->setText(v_fileName);
+}
+
+void MainWindow::SelectEffCalibFile(void)
+{
+    QFileDialog v_dial;
+    v_dial.setFileMode(QFileDialog::ExistingFile);
+    v_dial.setNameFilter(tr("Calibration files (*.par)"));
+    v_dial.setDirectory("~");
+
+    QStringList v_fileNames;
+    if (v_dial.exec()) {
+        v_fileNames = v_dial.selectedFiles();
+        ui->lineEdit_4->setText(v_fileNames.at(0));
+    }
+}
+
+void MainWindow::SelectGraphsFile(void)
+{
+    QFileDialog v_dial;
+    v_dial.setFileMode(QFileDialog::ExistingFile);
+    v_dial.setNameFilter(tr("Graphs files (*.root)"));
+    v_dial.setDirectory("~");
+
+    QStringList v_fileNames;
+    if (v_dial.exec()) {
+        v_fileNames = v_dial.selectedFiles();
+        ui->lineEdit_5->setText(v_fileNames.at(0));
+    }
 }

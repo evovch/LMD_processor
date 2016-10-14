@@ -28,7 +28,8 @@ SOURCES += main.cpp\
            gui/HistoWidget.cpp \
            data/cls_RootEvent.cpp \
            data/cls_RootHit.cpp \
-           ../build-LMD_processor-Desktop_Qt_5_7_0_GCC_64bit-Debug/eventsdict.cxx
+    ../build-LMD_processor-Desktop-Debug/eventsdict.cxx \
+    cls_Calibrator.cpp
 
 HEADERS += mainwindow.h \
            cls_LmdFile.h \
@@ -47,7 +48,8 @@ HEADERS += mainwindow.h \
            gui/GraphWidget.h \
            gui/HistoWidget.h \
            data/cls_RootEvent.h \
-           data/cls_RootHit.h
+           data/cls_RootHit.h \
+    cls_Calibrator.h
 
 FORMS   += mainwindow.ui \
            gui/GraphWidget.ui \
@@ -55,7 +57,7 @@ FORMS   += mainwindow.ui \
 
 # Set correct path to your ROOT include directory
 
-INCLUDEPATH += /home/evovch/soft/root_install/include \
+INCLUDEPATH += /usr/include/root/ \
     Go4QtRoot/ \
     data/ \
     gui/
@@ -63,10 +65,10 @@ INCLUDEPATH += /home/evovch/soft/root_install/include \
 # Set correct path to your ROOT libs directory
 
 LIBS += -lX11 \
-        -L/home/evovch/soft/root_install/lib \
+        -L/usr/lib/x86_64-linux-gnu/ \
         -lGui -lCore -lRIO -lNet -lHist -lGraf -lGraf3d \
         -lGpad -lTree -lRint -lPostscript -lMatrix \
-        -lPhysics -lMathCore -lThread -lMultiProc \
+        -lPhysics -lMathCore -lThread -lCint \
         -lGed -lTreePlayer \
         -pthread -lm -ldl -rdynamic
 

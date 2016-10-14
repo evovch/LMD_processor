@@ -20,7 +20,7 @@ public: // methods
 private: // data members
 
     TClonesArray* fHits; // TClonesArray of cls_RootHit objects
-    uint16_t fNumOfHits; // Number of hits - actually the size of the 'fHits'
+    UShort_t fNumOfHits; // Number of hits - actually the size of the 'fHits'
 
 public: // switch off this shit for time being
     ClassDef(cls_RootEvent,1)

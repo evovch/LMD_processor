@@ -21,6 +21,8 @@ public slots:
     void SelectDataFile(void);
     void SelectPedestalsFile(void);
     void SelectOutputFile(void);
+    void SelectEffCalibFile(void);
+    void SelectGraphsFile(void);
 
 private:
     Ui::MainWindow *ui;

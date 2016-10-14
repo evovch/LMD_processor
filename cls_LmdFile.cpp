@@ -15,6 +15,7 @@ using std::endl;
 #include "support.h"
 #include "HistoWidget.h"
 #include "cls_RootEvent.h"
+#include "cls_Calibrator.h"
 
 //#define DEBUGMODE
 
@@ -25,6 +26,11 @@ cls_LmdFile::cls_LmdFile() :
     mRawData(nullptr)
 {
     this->InitHistos();
+
+    mCalibrator = new cls_Calibrator();
+
+    for (unsigned int i=0; i<128; i++) fEffCalib[i] = 0.;
+    for (unsigned int i=0; i<128; i++) fPedestals[i] = 0.;
 }
 
 // =============================================================================================================================
@@ -35,6 +41,8 @@ cls_LmdFile::~cls_LmdFile()
     if (mRawData) delete [] mRawData; mRawData = nullptr;
 
     this->DeleteHistos();
+
+    delete mCalibrator;
 }
 
 // =============================================================================================================================
@@ -47,6 +55,10 @@ void cls_LmdFile::InitHistos(void)
     fhAdcAllWoBaseline = new TH2D("adcAllWoBaseline", "ADC spectra all without baseline;channel;ADC value",
                                             128, 0., 128., 1074*2, -200., 4096.);
     fhAdcAllSumWoBaseline = new TH1D("adcAllSum", "adcAllSum;ADC value;Entries", 1074*2, -200., 4096.);
+
+    // Callibrated data analysis
+    fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  64, 0., 64., 1074*2, -1.5, 20.);
+    fhCalAdcAllSumWoBaseline = new TH1D("calAdcAllSum", "adcAllSum;ADC value;Entries;calibrated", 1074*2, -2., 50.);
 
     // Processed data analysis
     fhAdcInEvent = new TH2D("adcInEvent", "ADC spectra in events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
@@ -73,6 +85,10 @@ void cls_LmdFile::DeleteHistos(void)
     delete fhAdcAll;
     delete fhAdcAllWoBaseline;
     delete fhAdcAllSumWoBaseline;
+
+    // Callibrated data analysis
+    delete fhCalAdcAllWoBaseline1e;
+    delete fhCalAdcAllSumWoBaseline;
 
     // Processed data analysis
     delete fhAdcInEvent;
@@ -115,6 +131,10 @@ unsigned int cls_LmdFile::ExportHistos(void)
     fhAdcAll->Write();
     fhAdcAllWoBaseline->Write();
     fhAdcAllSumWoBaseline->Write();
+
+    // Callibrated data analysis
+    fhCalAdcAllWoBaseline1e->Write();
+    fhCalAdcAllSumWoBaseline->Write();
 
     // Processed data analysis
     fhAdcInEvent->Write();
@@ -166,6 +186,32 @@ void cls_LmdFile::ImportPedestals(QString p_filename)
         infile >> a >> b >> ch >> pedestal >> smth;
         fPedestals[ch] = pedestal;
     }
+}
+
+// =============================================================================================================================
+// =============================================================================================================================
+
+void cls_LmdFile::ImportEffCalib(QString p_filename)
+{
+    std::ifstream infile(p_filename.toStdString());
+
+    int ch;
+    float val;
+
+    //TODO by now only 64
+    for (unsigned int i=0; i<64; i++) {
+        infile >> ch >> val;
+        fEffCalib[ch] = val;
+    }
+}
+
+// =============================================================================================================================
+// =============================================================================================================================
+
+void cls_LmdFile::ImportGraphsFile(QString p_filename)
+{
+    TString v_filename(p_filename.toStdString());
+    mCalibrator->ImportGraphs(v_filename);
 }
 
 // =============================================================================================================================
@@ -284,7 +330,9 @@ void cls_LmdFile::RunUnpacking(void)
 
                 fhAdcAll->Fill(ch, adc);
                 fhAdcAllWoBaseline->Fill(ch, fPedestals[ch] - adc);
+                fhCalAdcAllWoBaseline1e->Fill(ch, (fPedestals[ch] - adc)/fEffCalib[ch]);
                 fhAdcAllSumWoBaseline->Fill(fPedestals[ch] - adc);
+                fhCalAdcAllSumWoBaseline->Fill( (fPedestals[ch] - adc)/fEffCalib[ch] );
 
                 curChAdcPair = std::make_pair(ch, adc);
                 fTimeAdcMap.insert(std::pair<uint32_t, std::pair<uint8_t, uint16_t> >(hitFullTime, curChAdcPair));
