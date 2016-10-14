@@ -60,6 +60,9 @@ void cls_LmdFile::InitHistos(void)
     fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  64, 0., 64., 1074*2, -1.5, 20.);
     fhCalAdcAllSumWoBaseline = new TH1D("calAdcAllSum", "adcAllSum;ADC value;Entries;calibrated", 1074*2, -2., 50.);
 
+    fhCalAdcAllWoBaselineNonLinear = new TH2D("fhCalAdcAllWoBaselineNonLinear", "fhCalAdcAllWoBaselineNonLinear", 128, 0., 128., 1074*2, -200., 4096.);
+    fhCalAdcAllSumWoBaselineNonLinear = new TH1D("fhCalAdcAllSumWoBaselineNonLinear", "fhCalAdcAllSumWoBaselineNonLinear", 1074*2, -200., 4096.);
+
     // Processed data analysis
     fhAdcInEvent = new TH2D("adcInEvent", "ADC spectra in events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
     fhAdcBaseline = new TH2D("adcBaseline", "baseline;channel;ADC value", 128, 0., 128., 1074*2, -200., 4096.);
@@ -89,6 +92,9 @@ void cls_LmdFile::DeleteHistos(void)
     // Callibrated data analysis
     delete fhCalAdcAllWoBaseline1e;
     delete fhCalAdcAllSumWoBaseline;
+
+    delete fhCalAdcAllWoBaselineNonLinear;
+    delete fhCalAdcAllSumWoBaselineNonLinear;
 
     // Processed data analysis
     delete fhAdcInEvent;
@@ -135,6 +141,9 @@ unsigned int cls_LmdFile::ExportHistos(void)
     // Callibrated data analysis
     fhCalAdcAllWoBaseline1e->Write();
     fhCalAdcAllSumWoBaseline->Write();
+
+    fhCalAdcAllWoBaselineNonLinear->Write();
+    fhCalAdcAllSumWoBaselineNonLinear->Write();
 
     // Processed data analysis
     fhAdcInEvent->Write();
@@ -292,6 +301,10 @@ void cls_LmdFile::RunUnpacking(void)
              uint32_t bufferCursor = subsubevent*3;
              type = subEvData[bufferCursor+0] & 0x7; // 3 bits
 
+             Double_t effCalibratedADC;
+             Double_t calibratedVal;
+             Double_t pedMinusAdcVal;
+
              switch (type) {
              case 0: //============================================================================================================================
 #ifdef DEBUGMODE
@@ -328,11 +341,20 @@ void cls_LmdFile::RunUnpacking(void)
                                         );
 #endif
 
+                // Raw
                 fhAdcAll->Fill(ch, adc);
-                fhAdcAllWoBaseline->Fill(ch, fPedestals[ch] - adc);
-                fhCalAdcAllWoBaseline1e->Fill(ch, (fPedestals[ch] - adc)/fEffCalib[ch]);
-                fhAdcAllSumWoBaseline->Fill(fPedestals[ch] - adc);
-                fhCalAdcAllSumWoBaseline->Fill( (fPedestals[ch] - adc)/fEffCalib[ch] );
+                pedMinusAdcVal = fPedestals[ch] - adc;
+                fhAdcAllWoBaseline->Fill(ch, pedMinusAdcVal);
+                fhAdcAllSumWoBaseline->Fill(pedMinusAdcVal);
+                // Eff calibrated
+                effCalibratedADC = (fPedestals[ch] - adc)/fEffCalib[ch];
+                fhCalAdcAllWoBaseline1e->Fill(ch, effCalibratedADC);
+                fhCalAdcAllSumWoBaseline->Fill(effCalibratedADC);
+
+                // Calibrated using LUTs
+                calibratedVal = mCalibrator->GetCalibratedVal(ch, pedMinusAdcVal);
+                fhCalAdcAllWoBaselineNonLinear->Fill(ch, calibratedVal);
+                fhCalAdcAllSumWoBaselineNonLinear->Fill(calibratedVal);
 
                 curChAdcPair = std::make_pair(ch, adc);
                 fTimeAdcMap.insert(std::pair<uint32_t, std::pair<uint8_t, uint16_t> >(hitFullTime, curChAdcPair));

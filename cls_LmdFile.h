@@ -77,6 +77,10 @@ private: // histos
     TH1D* fhCalAdcAllSumWoBaseline;
 //    TH2D* fhCalAdcAllSumWoBaseline
 
+    // With calibration using LUTs
+    TH2D* fhCalAdcAllWoBaselineNonLinear;
+    TH1D* fhCalAdcAllSumWoBaselineNonLinear;
+
     // Processed data analysis
     TH2D* fhAdcInEvent;
     TH2D* fhAdcBaseline;

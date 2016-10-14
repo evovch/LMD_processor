@@ -57,12 +57,15 @@ void MainWindow::ImportFile(void)
     QString v_filename = ui->lineEdit->text();
     QString v_pedFilename = ui->lineEdit_2->text();
     QString v_effCalibFilename = ui->lineEdit_4->text();
+    QString v_graphsFilename = ui->lineEdit_5->text();
 
     cls_LmdFile* v_inputFile = new cls_LmdFile();
     v_inputFile->SetOutputAnalysisFile(ui->lineEdit_3->text());
 
     v_inputFile->ImportPedestals(v_pedFilename);
     v_inputFile->ImportEffCalib(v_effCalibFilename);
+    v_inputFile->ImportGraphsFile(v_graphsFilename);
+
     v_inputFile->StartProcessing(v_filename);
 
     delete v_inputFile;
