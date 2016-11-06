@@ -23,6 +23,8 @@ public slots:
     void SelectDataFile(void);
     void SelectPedestalsFile(void);
     void SelectOutputFile(void);
+    void SelectEffCalibFile(void);
+    void SelectGraphsFile(void);
 
 private:
     Ui::MainWindow *ui;
@@ -30,6 +32,8 @@ private:
     std::string fInputFolderPath;
     std::string fPedestalsFolderPath;
     std::string fOutputFolderPath;
+    std::string fEffCalFolderPath;
+    std::string fGraphsFolderPath;
 };
 
 #endif // MAINWINDOW_H

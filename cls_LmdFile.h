@@ -8,6 +8,8 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
+class cls_Calibrator;
+
 class cls_LmdFile
 {
 public:
@@ -15,6 +17,8 @@ public:
     ~cls_LmdFile();
 
     void ImportPedestals(QString p_filename);
+    void ImportEffCalib(QString p_filename);
+    void ImportGraphsFile(QString p_filename);
     void StartProcessing(QString p_filename);
 
     void SetOutputAnalysisFile(QString p_filename) { mOutputAnalysisFilename = p_filename; }
@@ -57,7 +61,9 @@ private: // data members
     std::vector<cls_Event> fEvents;
 
     float fPedestals[128];
+    float fEffCalib[128];
 
+    cls_Calibrator* mCalibrator;
 
 private: // histos
 
@@ -65,6 +71,15 @@ private: // histos
     TH2D* fhAdcAll;
     TH2D* fhAdcAllWoBaseline;
     TH1D* fhAdcAllSumWoBaseline;
+
+    // Callibrated data analysis
+    TH2D* fhCalAdcAllWoBaseline1e;
+    TH1D* fhCalAdcAllSumWoBaseline;
+//    TH2D* fhCalAdcAllSumWoBaseline
+
+    // With calibration using LUTs
+    TH2D* fhCalAdcAllWoBaselineNonLinear;
+    TH1D* fhCalAdcAllSumWoBaselineNonLinear;
 
     // Processed data analysis
     TH2D* fhAdcInEvent;

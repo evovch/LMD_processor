@@ -28,6 +28,7 @@ SOURCES += main.cpp\
            gui/HistoWidget.cpp \
            data/cls_RootEvent.cpp \
            data/cls_RootHit.cpp \
+           cls_Calibrator.cpp \
            ../build-LMD_processor-Desktop_Qt_5_7_0_GCC_64bit-Debug/eventsdict.cxx
 
 HEADERS += mainwindow.h \
@@ -47,7 +48,8 @@ HEADERS += mainwindow.h \
            gui/GraphWidget.h \
            gui/HistoWidget.h \
            data/cls_RootEvent.h \
-           data/cls_RootHit.h
+           data/cls_RootHit.h \
+           cls_Calibrator.h
 
 FORMS   += mainwindow.ui \
            gui/GraphWidget.ui \
@@ -66,7 +68,7 @@ LIBS += -lX11 \
         -L/home/evovch/soft/root_install/lib \
         -lGui -lCore -lRIO -lNet -lHist -lGraf -lGraf3d \
         -lGpad -lTree -lRint -lPostscript -lMatrix \
-        -lPhysics -lMathCore -lThread -lMultiProc \
+        -lPhysics -lMathCore -lThread -lMultiProc -lCling \
         -lGed -lTreePlayer \
         -pthread -lm -ldl -rdynamic
 
