@@ -16,7 +16,7 @@ public: // methods
     void Clear(Option_t *option ="");
 
     cls_RootHit* AddHit(cls_RootHit* p_sourceHit);
-    cls_RootHit* AddHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc);
+    cls_RootHit* AddHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc, Float_t p_adcCalib);
 
     void SetID(ULong_t p_id) { fEventID = p_id; }
 

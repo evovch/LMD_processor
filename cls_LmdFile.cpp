@@ -511,10 +511,11 @@ unsigned int cls_LmdFile::ExportEventsRootTree()
             // Extract REAL ADC value by subtracting the pedestal
             //TODO check data types and casting...
             Int_t v_realADCval = (int32_t)fPedestals[v_curHitChannel] - (int32_t)v_curHitAdc;
+            Float_t calibratedAdc = cls_Calibrator::Instance().GetCalibratedVal(v_curHitChannel, v_realADCval);
 
             //printf ("%ld\t%d\t%d\t%d\n", v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval);
 
-            v_event->AddHit(v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval);
+            v_event->AddHit(v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval, calibratedAdc);
 
         }
         v_event->SetID(eventsCounter++);

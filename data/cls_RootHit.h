@@ -17,7 +17,7 @@ public: // methods
     virtual ~cls_RootHit();
 
     // Constructor with full parameters list
-    cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc);
+    cls_RootHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc, Float_t p_adcCalib);
     // Copy constructor
     cls_RootHit(cls_RootHit* p_sourceHit);
 
@@ -28,11 +28,13 @@ public: // methods
 private: // data members
 
     ULong64_t fTimestamp;
-    //UChar_t fFebID;       // hooks for further development
-    //UChar_t fChipID;      // hooks for further development
+    //UChar_t fFebID;        // hooks for further development
+    //UChar_t fChipID;       // hooks for further development
     UChar_t fChannel;
     UShort_t fRawAdcVal;
-    Int_t fAdcVal;      // (pedestal -raw adc val)
+    Int_t fAdcVal;           // (pedestal -raw adc val)
+    Float_t fAdcCalibrated; // After calibration using LUTs
+
 
 public:
     ClassDef(cls_RootHit,1)

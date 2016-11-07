@@ -43,7 +43,8 @@ Float_t cls_Calibrator::GetCalibratedVal(UInt_t ch, Float_t val)
 {
     if (!fConstructed) this->GenerateDummyLUTs();
 
-    return fLUT[ch]->GetBinContent((UInt_t)val);
+    // Bin number as input!
+    return fLUT[ch]->GetBinContent((UInt_t)val+200);
 }
 
 // Return value: 0 - ok, 1 - error

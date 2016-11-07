@@ -34,9 +34,9 @@ cls_RootHit* cls_RootEvent::AddHit(cls_RootHit* p_sourceHit)
     return hit;
 }
 
-cls_RootHit* cls_RootEvent::AddHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc)
+cls_RootHit* cls_RootEvent::AddHit(ULong64_t p_ts, UChar_t p_ch, UShort_t p_rawAdc, Int_t p_adc, Float_t p_adcCalib)
 {
     TClonesArray &hits = *fHits;
-    cls_RootHit *hit = new(hits[fNumOfHits++]) cls_RootHit(p_ts, p_ch, p_rawAdc, p_adc);
+    cls_RootHit *hit = new(hits[fNumOfHits++]) cls_RootHit(p_ts, p_ch, p_rawAdc, p_adc, p_adcCalib);
     return hit;
 }
