@@ -27,8 +27,6 @@ cls_LmdFile::cls_LmdFile() :
 {
     this->InitHistos();
 
-    mCalibrator = new cls_Calibrator();
-
     for (unsigned int i=0; i<128; i++) fEffCalib[i] = 0.;
     for (unsigned int i=0; i<128; i++) fPedestals[i] = 0.;
 }
@@ -41,8 +39,6 @@ cls_LmdFile::~cls_LmdFile()
     if (mRawData) delete [] mRawData; mRawData = nullptr;
 
     this->DeleteHistos();
-
-    delete mCalibrator;
 }
 
 // =============================================================================================================================
@@ -115,17 +111,15 @@ void cls_LmdFile::DeleteHistos(void)
 
 unsigned int cls_LmdFile::ExportHistos(void)
 {
-    // Export event building histograms
-
-    TString p_filename(mOutputAnalysisFilename.toStdString());
+    // Export event building histograms  -- ????? wat?
 
     TDirectory* prevDir = gDirectory;
     TFile* prevFile = gFile;
 
-    TFile v_outputFile(p_filename, "RECREATE");
+    TFile v_outputFile(mOutputHistoFilename, "RECREATE");
 
     if (v_outputFile.IsZombie()) {
-        cerr << "Error opening file " << p_filename.Data() << endl;
+        cerr << "Error opening file " << mOutputHistoFilename.Data() << endl;
         gDirectory = prevDir;
         gFile = prevFile;
         return 1; // FAIL
@@ -162,7 +156,7 @@ unsigned int cls_LmdFile::ExportHistos(void)
 
     v_outputFile.Close();
 
-    cout << "Successfully exported analysis histograms into " << p_filename.Data() << "." << endl;
+    cout << "Successfully exported analysis histograms into " << mOutputHistoFilename.Data() << "." << endl;
 
     gDirectory = prevDir;
     gFile = prevFile;
@@ -220,7 +214,7 @@ void cls_LmdFile::ImportEffCalib(QString p_filename)
 void cls_LmdFile::ImportGraphsFile(QString p_filename)
 {
     TString v_filename(p_filename.toStdString());
-    mCalibrator->ImportGraphs(v_filename);
+    cls_Calibrator::Instance().ImportGraphs(v_filename);
 }
 
 // =============================================================================================================================
@@ -228,7 +222,7 @@ void cls_LmdFile::ImportGraphsFile(QString p_filename)
 
 void cls_LmdFile::StartProcessing(QString p_filename)
 {
-    mFilename = p_filename;
+    mFilename = p_filename.toStdString();
 
     this->RunUnpacking();
     this->RunEventBuilding();
@@ -244,10 +238,10 @@ void cls_LmdFile::StartProcessing(QString p_filename)
 void cls_LmdFile::RunUnpacking(void)
 {
     mbs::LmdFile f;
-    if (!f.OpenRead(mFilename.toStdString().data())) {
-       cout << "Error opening file '" << mFilename.toStdString() << "'" << endl;
+    if (!f.OpenRead(mFilename.Data())) {
+       cout << "Error opening file '" << mFilename.Data() << "'" << endl;
     }
-    cout << "Successfully opened file '" << mFilename.toStdString() << "'" << endl;
+    cout << "Successfully opened file '" << mFilename.Data() << "'" << endl;
 
     // Declarations
     uint32_t currentEpoch = 0;
@@ -352,7 +346,7 @@ void cls_LmdFile::RunUnpacking(void)
                 fhCalAdcAllSumWoBaseline->Fill(effCalibratedADC);
 
                 // Calibrated using LUTs
-                calibratedVal = mCalibrator->GetCalibratedVal(ch, pedMinusAdcVal);
+                calibratedVal = cls_Calibrator::Instance().GetCalibratedVal(ch, pedMinusAdcVal);
                 fhCalAdcAllWoBaselineNonLinear->Fill(ch, calibratedVal);
                 fhCalAdcAllSumWoBaselineNonLinear->Fill(calibratedVal);
 
@@ -486,13 +480,14 @@ void cls_LmdFile::RunEventBuilding(void)
 // =============================================================================================================================
 // =============================================================================================================================
 
-void cls_LmdFile::ExportEventsRootTree(void)
+unsigned int cls_LmdFile::ExportEventsRootTree()
 {
-    TFile f("tree4.root","RECREATE");
-    TTree t4("t4","A Tree with Events");
-    cls_RootEvent *v_event = new cls_RootEvent();
-    //t4.Branch("event_branch", "cls_RootEvent", &v_event, 32000, 0);
-    t4.Branch("event_branch", "cls_RootEvent", v_event);
+    TFile theTreeFile(mOutputTreeFilename, "RECREATE");
+    TTree theTree("theTree", "A tree with events");
+
+    cls_RootEvent* v_event = new cls_RootEvent();
+
+    theTree.Branch("theBranch", "cls_RootEvent", v_event);
 
     // Loop over the events
     for (std::vector<cls_Event>::iterator v_eventsIter = fEvents.begin(); v_eventsIter != fEvents.end(); ++v_eventsIter)
@@ -521,14 +516,18 @@ void cls_LmdFile::ExportEventsRootTree(void)
 
         }
 
-        t4.Fill();        // Fill the tree
-        v_event->Clear(); // Clear before reloading event
-
+        theTree.Fill();      // Fill the tree
+        v_event->Clear();    // Clear before reloading event
     }
 
-    f.Write();            // Write the file header
-    t4.Print();           // Print the tree contents
+    theTreeFile.Write();     // Write the file header
+    //theTree.Print();       // Print the tree contents
 
+    delete v_event;
+
+    cout << "Successfully exported root tree into " << mOutputTreeFilename.Data() << "." << endl;
+
+    return 0; // OK
 }
 
 // =============================================================================================================================

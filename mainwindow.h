@@ -25,6 +25,7 @@ public slots:
     void SelectOutputFile(void);
     void SelectEffCalibFile(void);
     void SelectGraphsFile(void);
+    void SelectTreeFile(void);
 
 private:
     Ui::MainWindow *ui;

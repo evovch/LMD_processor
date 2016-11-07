@@ -8,8 +8,6 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-class cls_Calibrator;
-
 class cls_LmdFile
 {
 public:
@@ -21,28 +19,33 @@ public:
     void ImportGraphsFile(QString p_filename);
     void StartProcessing(QString p_filename);
 
-    void SetOutputAnalysisFile(QString p_filename) { mOutputAnalysisFilename = p_filename; }
+    void SetOutputHistoFile(QString p_filename) { mOutputHistoFilename = p_filename.toStdString(); }
+    void SetOutputTreeFile(QString p_filename) { mOutputTreeFilename = p_filename.toStdString(); }
 
 private: // methods
 
     void RunUnpacking(void);
     void RunEventBuilding(void);
-    void ExportEventsRootTree(void);
     void RunEventsAnalysis(void);
 
     void InitHistos(void);
     void DeleteHistos(void);
     unsigned int ExportHistos(void);
 
+    unsigned int ExportEventsRootTree(void);
+
     void ShowHistos(void);
 
 private: // data members
 
     // Input LMD file name
-    QString mFilename;
+    TString mFilename;
 
-    // Output analysis root file name
-    QString mOutputAnalysisFilename;
+    // Output analysis histograms root file name
+    TString mOutputHistoFilename;
+
+    // Output tree root file name
+    TString mOutputTreeFilename;
 
     // Storage and cursor for the raw data
     char* mRawData;
@@ -63,9 +66,7 @@ private: // data members
     float fPedestals[128];
     float fEffCalib[128];
 
-    cls_Calibrator* mCalibrator;
-
-private: // histos
+private: // histos - move to another class
 
     // Raw data analysis
     TH2D* fhAdcAll;

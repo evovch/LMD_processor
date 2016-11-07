@@ -32,15 +32,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     getline(inputFile, readString);
     if (inputFile.eof() || readString.length()<4) { return; }
-    ui->lineEdit_3->setText(QString::fromStdString(readString.substr(4)));
-
-    getline(inputFile, readString);
-    if (inputFile.eof() || readString.length()<4) { return; }
     ui->lineEdit_4->setText(QString::fromStdString(readString.substr(4)));
 
     getline(inputFile, readString);
     if (inputFile.eof() || readString.length()<4) { return; }
     ui->lineEdit_5->setText(QString::fromStdString(readString.substr(4)));
+
+    getline(inputFile, readString);
+    if (inputFile.eof() || readString.length()<4) { return; }
+    ui->lineEdit_3->setText(QString::fromStdString(readString.substr(4)));
+
+    getline(inputFile, readString);
+    if (inputFile.eof() || readString.length()<4) { return; }
+    ui->lineEdit_6->setText(QString::fromStdString(readString.substr(4)));
 
     // -------------------------------------------------------------------
     getline(inputFile, readString);
@@ -53,33 +57,34 @@ MainWindow::MainWindow(QWidget *parent) :
 
     getline(inputFile, readString);
     if (inputFile.eof() || readString.length()<4) { return; }
-    this->fOutputFolderPath = readString.substr(4);
-
-    getline(inputFile, readString);
-    if (inputFile.eof() || readString.length()<4) { return; }
     this->fEffCalFolderPath = readString.substr(4);
 
     getline(inputFile, readString);
     if (inputFile.eof() || readString.length()<4) { return; }
     this->fGraphsFolderPath = readString.substr(4);
 
+    getline(inputFile, readString);
+    if (inputFile.eof() || readString.length()<4) { return; }
+    this->fOutputFolderPath = readString.substr(4);
 }
 
 MainWindow::~MainWindow()
 {
     QString inputFilename = ui->lineEdit->text();
     QString pedestalFilename = ui->lineEdit_2->text();
-    QString outputFilename = ui->lineEdit_3->text();
     QString effCalibFilename = ui->lineEdit_4->text();
     QString graphsFilename = ui->lineEdit_5->text();
+    QString outputFilename = ui->lineEdit_3->text();
+    QString outTreeFilename = ui->lineEdit_6->text();
 
     std::ofstream outputFile("/tmp/LMD_processor.txt");
 
     outputFile << "IN: " << inputFilename.toStdString() << std::endl;
     outputFile << "PED:" << pedestalFilename.toStdString() << std::endl;
-    outputFile << "OUT:" << outputFilename.toStdString() << std::endl;
     outputFile << "EFF:" << effCalibFilename.toStdString() << std::endl;
     outputFile << "GRA:" << graphsFilename.toStdString() << std::endl;
+    outputFile << "OUT:" << outputFilename.toStdString() << std::endl;
+    outputFile << "OTR:" << outTreeFilename.toStdString() << std::endl;
 
     std::string tmpStr;
     size_t lastSlashPos;
@@ -94,11 +99,6 @@ MainWindow::~MainWindow()
     fPedestalsFolderPath = tmpStr.substr(0, lastSlashPos+1);
     outputFile << "PDP:" << fPedestalsFolderPath << std::endl;
 
-    tmpStr = outputFilename.toStdString();
-    lastSlashPos = tmpStr.rfind("/");
-    fOutputFolderPath = tmpStr.substr(0, lastSlashPos+1);
-    outputFile << "OUP:" << fOutputFolderPath << std::endl;
-
     tmpStr = effCalibFilename.toStdString();
     lastSlashPos = tmpStr.rfind("/");
     fEffCalFolderPath = tmpStr.substr(0, lastSlashPos+1);
@@ -108,6 +108,11 @@ MainWindow::~MainWindow()
     lastSlashPos = tmpStr.rfind("/");
     fGraphsFolderPath = tmpStr.substr(0, lastSlashPos+1);
     outputFile << "GRP:" << fGraphsFolderPath << std::endl;
+
+    tmpStr = outputFilename.toStdString();
+    lastSlashPos = tmpStr.rfind("/");
+    fOutputFolderPath = tmpStr.substr(0, lastSlashPos+1);
+    outputFile << "OUP:" << fOutputFolderPath << std::endl;
 
     outputFile.close();
 
@@ -125,11 +130,13 @@ void MainWindow::ImportFile(void)
     QString v_graphsFilename = ui->lineEdit_5->text();
 
     cls_LmdFile* v_inputFile = new cls_LmdFile();
-    v_inputFile->SetOutputAnalysisFile(ui->lineEdit_3->text());
+    v_inputFile->SetOutputHistoFile(ui->lineEdit_3->text());
+    v_inputFile->SetOutputTreeFile(ui->lineEdit_6->text());
+
 
     v_inputFile->ImportPedestals(v_pedFilename);
-    v_inputFile->ImportEffCalib(v_effCalibFilename);
-    v_inputFile->ImportGraphsFile(v_graphsFilename);
+    //v_inputFile->ImportEffCalib(v_effCalibFilename);
+    //v_inputFile->ImportGraphsFile(v_graphsFilename);
 
     v_inputFile->StartProcessing(v_filename);
 
@@ -137,6 +144,9 @@ void MainWindow::ImportFile(void)
 
     ui->label->setText("Finished analysis.");
 }
+
+// ========================================================================================
+// ========================================================================================
 
 void MainWindow::SelectDataFile(void)
 {
@@ -167,15 +177,6 @@ void MainWindow::SelectPedestalsFile(void)
     }
 }
 
-void MainWindow::SelectOutputFile(void)
-{
-    std::string generatedFilename = this->fOutputFolderPath + "analysis.root";
-    QString v_fileName = QFileDialog::getSaveFileName(this, tr("Save analysis file"),
-                               QString::fromStdString(generatedFilename),
-                               tr("Root files (*.root)"));
-    ui->lineEdit_3->setText(v_fileName);
-}
-
 void MainWindow::SelectEffCalibFile(void)
 {
     QFileDialog v_dial;
@@ -202,4 +203,25 @@ void MainWindow::SelectGraphsFile(void)
         v_fileNames = v_dial.selectedFiles();
         ui->lineEdit_5->setText(v_fileNames.at(0));
     }
+}
+
+// ========================================================================================
+// ========================================================================================
+
+void MainWindow::SelectOutputFile(void)
+{
+    std::string generatedFilename = this->fOutputFolderPath + "analysis.root";
+    QString v_fileName = QFileDialog::getSaveFileName(this, tr("Save analysis file"),
+                               QString::fromStdString(generatedFilename),
+                               tr("Root files (*.root)"));
+    ui->lineEdit_3->setText(v_fileName);
+}
+
+void MainWindow::SelectTreeFile(void)
+{
+    std::string generatedFilename = this->fOutputFolderPath + "tree.root";
+    QString v_fileName = QFileDialog::getSaveFileName(this, tr("Save tree file"),
+                               QString::fromStdString(generatedFilename),
+                               tr("Root files (*.root)"));
+    ui->lineEdit_6->setText(v_fileName);
 }

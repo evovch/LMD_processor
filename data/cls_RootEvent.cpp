@@ -12,9 +12,15 @@ cls_RootEvent::cls_RootEvent() :
     fHits = new TClonesArray("cls_RootHit", 5);
 }
 
+cls_RootEvent::~cls_RootEvent()
+{
+    Clear();
+}
+
 void cls_RootEvent::Clear(Option_t * /*option*/)
 {
     fHits->Clear("C");
+    fNumOfHits = 0;     // Hakuna Matata
 }
 
 /* https://root.cern.ch/root/htmldoc/guides/users-guide/Trees.html#example-4-a-tree-with-an-event-class

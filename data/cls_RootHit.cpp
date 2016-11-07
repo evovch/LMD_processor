@@ -3,7 +3,11 @@
 ClassImp(cls_RootHit)
 
 // Default constructor should not be used
-cls_RootHit::cls_RootHit()
+cls_RootHit::cls_RootHit() :
+    fTimestamp(0),
+    fChannel(0),
+    fRawAdcVal(0),
+    fAdcVal(0)
 {
 }
 
@@ -21,6 +25,11 @@ cls_RootHit::cls_RootHit(cls_RootHit* p_sourceHit) :
     fRawAdcVal(p_sourceHit->fRawAdcVal),
     fAdcVal(p_sourceHit->fAdcVal)
 {
+}
+
+cls_RootHit::~cls_RootHit()
+{
+    Clear();
 }
 
 void cls_RootHit::Clear(Option_t * /*option*/)

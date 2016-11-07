@@ -11,7 +11,7 @@ class cls_RootEvent : public TObject
 public: // methods
 
     cls_RootEvent();
-    /*virtual ~cls_RootEvent();*/
+    virtual ~cls_RootEvent();
 
     void Clear(Option_t *option ="");
 
@@ -20,11 +20,11 @@ public: // methods
 
 private: // data members
 
-    TClonesArray* fHits; // TClonesArray of cls_RootHit objects
-    UShort_t fNumOfHits; // Number of hits - actually the size of the 'fHits'
+    TClonesArray* fHits; //-> TClonesArray of cls_RootHit objects
+    UShort_t fNumOfHits; //   Number of hits - actually the size of the 'fHits'
 
 public:
-    ClassDef(cls_RootEvent,1);
+    ClassDef(cls_RootEvent,1)
 };
 
 #endif // CLS_ROOTEVENT_H
