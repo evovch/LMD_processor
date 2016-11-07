@@ -489,6 +489,8 @@ unsigned int cls_LmdFile::ExportEventsRootTree()
 
     theTree.Branch("theBranch", "cls_RootEvent", v_event);
 
+    ULong_t eventsCounter = 0;
+
     // Loop over the events
     for (std::vector<cls_Event>::iterator v_eventsIter = fEvents.begin(); v_eventsIter != fEvents.end(); ++v_eventsIter)
     {
@@ -515,6 +517,7 @@ unsigned int cls_LmdFile::ExportEventsRootTree()
             v_event->AddHit(v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval);
 
         }
+        v_event->SetID(eventsCounter++);
 
         theTree.Fill();      // Fill the tree
         v_event->Clear();    // Clear before reloading event

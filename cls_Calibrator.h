@@ -35,7 +35,6 @@ private: // data members
 
     Bool_t fConstructed; // Defines whether the histograms have been allocated
 
-
 };
 
 #endif // CLS_CALIBRATOR_H

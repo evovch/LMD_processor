@@ -63,7 +63,7 @@ unsigned int cls_Calibrator::ImportGraphs(TString p_filename)
     const Int_t nEntries = gList->GetEntries();
     if (nEntries != 64) {
         cerr << "[cls_Calibrator::ImportGraphs] Something wrong, only " << nEntries << " graphs found instead of 64." << endl;
-        return 1;
+        return 1; // FAIL
     }
 
     TString gName;
@@ -73,7 +73,7 @@ unsigned int cls_Calibrator::ImportGraphs(TString p_filename)
         if (fGraph[i] == 0) {
             cerr << "[cls_Calibrator::ImportGraphs] Graph " << gName.Data() << " was not found in file " << fr.GetName() << endl;
             fr.Close();
-            return 1;
+            return 1; // FAIL
         }
     }
 
@@ -81,9 +81,9 @@ unsigned int cls_Calibrator::ImportGraphs(TString p_filename)
 
     this->GenerateLUTs();
 
-    this->ExportLUTs();
+    this->ExportLUTs("LUTs.root");
 
-    return 0;
+    return 0; // OK
 }
 
 // This method should be called only from ImportGraphs()!
@@ -105,7 +105,7 @@ void cls_Calibrator::GenerateLUTs(void)
         hName.Form("calHist%d", i);
         hTitle.Form("do we need it for channel %d?", i);
 
-        fLUT[i] = new TH1D(hName.Data(), hTitle.Data(), maxX - minX, minX, maxX);
+        fLUT[i] = new TH1D(hName.Data(), hTitle.Data(), (maxX - minX), minX, maxX); //TODO type cast
 
         fGraph[i]->ComputeRange(xmin, ymin, xmax, ymax);
         // cout << xmin << "\t" << xmax << endl;
@@ -121,27 +121,23 @@ void cls_Calibrator::GenerateDummyLUTs(void)
 {
     TString hName;
     TString hTitle;
-    const Double_t minX = -200.;     //minimal channel treated
-    const Double_t maxX = 4096.;    //maximal channel treated
-
-    // Auxilliary variables for graph range
-    Double_t xmin = 0;
-    Double_t xmax = 0;
-    Double_t ymin = 0;
-    Double_t ymax = 0;
+    const Double_t minX = -200.;    //minimal ADC channel treated
+    const Double_t maxX = 4096.;    //maximal ADC channel treated
 
     for (Int_t i = 0; i < 64; i++) {
         hName.Form("calHist%d", i);
         hTitle.Form("do we need it for channel %d?", i);
 
-        fLUT[i] = new TH1D(hName.Data(), hTitle.Data(), maxX - minX, minX, maxX);
+        fLUT[i] = new TH1D(hName.Data(), hTitle.Data(), (maxX - minX), minX, maxX); //TODO type cast
 
-        for (Int_t j = xmin; j <= xmax; j++) {
-            fLUT[i]->SetBinContent(j, 1.);
+        for (Int_t j=1; j<=4296; j++) { //FIXME - hardcoded number 4296
+            fLUT[i]->SetBinContent(j, j-200); //FIXME - hardcoded number 4296
         }
     }//for
 
     fConstructed = kTRUE;
+
+    this->ExportLUTs("DummyLUTs.root");
 }
 
 unsigned int cls_Calibrator::ExportLUTs(TString p_filename)
@@ -166,7 +162,7 @@ unsigned int cls_Calibrator::ExportLUTs(TString p_filename)
 
     v_outputFile.Close();
 
-    cout << "Successfully exported analysis histograms into " << p_filename.Data() << "." << endl;
+    cout << "Successfully exported analysis LUTs into " << p_filename.Data() << "." << endl;
 
     gDirectory = prevDir;
     gFile = prevFile;

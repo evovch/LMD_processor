@@ -7,7 +7,8 @@
 ClassImp(cls_RootEvent)
 
 cls_RootEvent::cls_RootEvent() :
-    fNumOfHits(0)
+    fNumOfHits(0),
+    fEventID(0)
 {
     fHits = new TClonesArray("cls_RootHit", 5);
 }
