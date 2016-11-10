@@ -8,12 +8,15 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
+class cls_pixelMap;
+
 class cls_LmdFile
 {
 public:
     cls_LmdFile();
     ~cls_LmdFile();
 
+    void ImportPixelMap(QString p_filename);
     void ImportPedestals(QString p_filename);
     void ImportEffCalib(QString p_filename);
     void ImportGraphsFile(QString p_filename);
@@ -62,6 +65,8 @@ private: // data members
 
     // Container for the data after event building
     std::vector<cls_Event> fEvents;
+
+    cls_pixelMap* fPixelMap;
 
     float fPedestals[128];
     float fEffCalib[128];

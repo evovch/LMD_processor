@@ -16,6 +16,7 @@ using std::endl;
 #include "HistoWidget.h"
 #include "cls_RootEvent.h"
 #include "cls_Calibrator.h"
+#include "cls_pixelMap.h"
 
 //#define DEBUGMODE
 
@@ -23,7 +24,8 @@ using std::endl;
 // =============================================================================================================================
 
 cls_LmdFile::cls_LmdFile() :
-    mRawData(nullptr)
+    mRawData(nullptr),
+    fPixelMap(nullptr)
 {
     this->InitHistos();
 
@@ -37,6 +39,7 @@ cls_LmdFile::cls_LmdFile() :
 cls_LmdFile::~cls_LmdFile()
 {
     if (mRawData) delete [] mRawData; mRawData = nullptr;
+    //if (fPixelMap) delete fPixelMap; fPixelMap = nullptr;  // crash. Why?
 
     this->DeleteHistos();
 }
@@ -189,6 +192,17 @@ void cls_LmdFile::ImportPedestals(QString p_filename)
         infile >> a >> b >> ch >> pedestal >> smth;
         fPedestals[ch] = pedestal;
     }
+}
+
+// =============================================================================================================================
+// =============================================================================================================================
+
+void cls_LmdFile::ImportPixelMap(QString p_filename)
+{
+    if (!fPixelMap) fPixelMap = new cls_pixelMap();
+    TString v_filename;
+    v_filename.Form("%s", p_filename.toStdString().data());
+    fPixelMap->Import(v_filename);
 }
 
 // =============================================================================================================================
