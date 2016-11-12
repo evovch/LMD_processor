@@ -31,6 +31,8 @@ private: // methods
     void RunEventBuilding(void);
     void RunEventsAnalysis(void);
 
+    void AnalyzeEventCrossTalk(std::vector<cls_Event>::iterator p_eventsIter);
+
     void InitHistos(void);
     void DeleteHistos(void);
     unsigned int ExportHistos(void);
@@ -100,6 +102,18 @@ private: // histos - move to another class
     // Event building
     TH1D* fhNumOfHitInEvent;
 
+    // Cross-talk analysis
+    TH2D* fhHeatMap;
+    TH2D* fhAdcInEventNoNeighbours[64];
+    TH2D* fhAdcInEventWithTopNeighbour[64];
+    TH2D* fhAdcInEventWithBottomNeighbour[64];
+    TH2D* fhAdcInEventWithLeftNeighbour[64];
+    TH2D* fhAdcInEventWithRightNeighbour[64];
+    TH2D* fhAdcInEventWoBaselineNoNeighbours[64];
+    TH2D* fhAdcInEventWoBaselineWithTopNeighbour[64];
+    TH2D* fhAdcInEventWoBaselineWithBottomNeighbour[64];
+    TH2D* fhAdcInEventWoBaselineWithLeftNeighbour[64];
+    TH2D* fhAdcInEventWoBaselineWithRightNeighbour[64];
 };
 
 #endif // CLS_LMDFILE_H

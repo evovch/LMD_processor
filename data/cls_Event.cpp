@@ -34,7 +34,7 @@ void cls_Event::Dump(void)
         ULong64_t v_currentTimestamp = (*v_mainIter).first;
         std::pair<UChar_t, UShort_t> v_currentHit = (*v_mainIter).second;
 
-        printf ("ts: %ld\t\tch: %d\tadc: %d\n", v_currentTimestamp, v_currentHit.first, v_currentHit.second);
+        printf ("ts: %lld\t\tch: %d\tadc: %d\n", v_currentTimestamp, v_currentHit.first, v_currentHit.second);
 
     }
 }
