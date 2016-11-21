@@ -109,11 +109,13 @@ private: // histos - move to another class
     TH2D* fhAdcInEventWithBottomNeighbour[64];
     TH2D* fhAdcInEventWithLeftNeighbour[64];
     TH2D* fhAdcInEventWithRightNeighbour[64];
+    TH2D* fhAdcInEventWithAtLeastOneNeighbour[64];
     TH2D* fhAdcInEventWoBaselineNoNeighbours[64];
     TH2D* fhAdcInEventWoBaselineWithTopNeighbour[64];
     TH2D* fhAdcInEventWoBaselineWithBottomNeighbour[64];
     TH2D* fhAdcInEventWoBaselineWithLeftNeighbour[64];
     TH2D* fhAdcInEventWoBaselineWithRightNeighbour[64];
+    TH2D* fhAdcInEventWoBaselineWithAtLeastOneNeighbour[64];
 };
 
 #endif // CLS_LMDFILE_H

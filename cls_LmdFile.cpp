@@ -104,6 +104,9 @@ void cls_LmdFile::InitHistos(void)
         histoTitle.Form("ADC spectra in events - with right neighbour;channel;ADC value");
         fhAdcInEventWithRightNeighbour[i] = new TH2D(histoName, histoTitle, 128, 0., 128., 1024, 0., 4096.);
 
+        histoName.Form("adcInEventWithAtLeastOneNeighbour_ch%d", i);
+        histoTitle.Form("ADC spectra in events - with at least one neighbour;channel;ADC value");
+        fhAdcInEventWithAtLeastOneNeighbour[i] = new TH2D(histoName, histoTitle, 128, 0., 128., 1024, 0., 4096.);
 
         histoName.Form("adcInEventWoBaselineNoNeighbours_ch%d", i);
         histoTitle.Form("ADC spectra in events without baseline - no neighbours;channel;ADC value");
@@ -124,6 +127,11 @@ void cls_LmdFile::InitHistos(void)
         histoName.Form("adcInEventWoBaselineWithRightNeighbour_ch%d", i);
         histoTitle.Form("ADC spectra in events without baseline - with right neighbour;channel;ADC value");
         fhAdcInEventWoBaselineWithRightNeighbour[i] = new TH2D(histoName, histoTitle, 128, 0., 128., 1074*2, -200., 4096.);
+
+        histoName.Form("adcInEventWoBaselineWithAtLeastOneNeighbour_ch%d", i);
+        histoTitle.Form("ADC spectra in events without baseline - with at least one neighbour;channel;ADC value");
+        fhAdcInEventWoBaselineWithAtLeastOneNeighbour[i] = new TH2D(histoName, histoTitle, 128, 0., 128., 1074*2, -200., 4096.);
+
     }
 }
 
@@ -165,11 +173,13 @@ void cls_LmdFile::DeleteHistos(void)
         delete fhAdcInEventWithBottomNeighbour[i];
         delete fhAdcInEventWithLeftNeighbour[i];
         delete fhAdcInEventWithRightNeighbour[i];
+        delete fhAdcInEventWithAtLeastOneNeighbour[i];
         delete fhAdcInEventWoBaselineNoNeighbours[i];
         delete fhAdcInEventWoBaselineWithTopNeighbour[i];
         delete fhAdcInEventWoBaselineWithBottomNeighbour[i];
         delete fhAdcInEventWoBaselineWithLeftNeighbour[i];
         delete fhAdcInEventWoBaselineWithRightNeighbour[i];
+        delete fhAdcInEventWoBaselineWithAtLeastOneNeighbour[i];
     }
 }
 
@@ -231,11 +241,13 @@ unsigned int cls_LmdFile::ExportHistos(void)
         fhAdcInEventWithBottomNeighbour[i]->Write();
         fhAdcInEventWithLeftNeighbour[i]->Write();
         fhAdcInEventWithRightNeighbour[i]->Write();
+        fhAdcInEventWithAtLeastOneNeighbour[i]->Write();
         fhAdcInEventWoBaselineNoNeighbours[i]->Write();
         fhAdcInEventWoBaselineWithTopNeighbour[i]->Write();
         fhAdcInEventWoBaselineWithBottomNeighbour[i]->Write();
         fhAdcInEventWoBaselineWithLeftNeighbour[i]->Write();
         fhAdcInEventWoBaselineWithRightNeighbour[i]->Write();
+        fhAdcInEventWoBaselineWithAtLeastOneNeighbour[i]->Write();
     }
 
     gDirectory->cd("..");
@@ -782,9 +794,9 @@ void cls_LmdFile::AnalyzeEventCrossTalk(std::vector<cls_Event>::iterator p_event
     std::multimap< ULong64_t, std::pair<UChar_t, UShort_t> >::iterator v_eventHitsIter;
 
     // Analyse only if there are more than 1 hit in the event
-    if (p_eventsIter->GetNhits() <= 1) {
+    /*if (p_eventsIter->GetNhits() <= 1) {
         return;
-    }
+    }*/
 
     /*cout << "CH:\t";
     for (v_eventHitsIter = v_curEvent.fEventTimeAdcMap.begin(); v_eventHitsIter != v_curEvent.fEventTimeAdcMap.end(); ++v_eventHitsIter) {
@@ -861,6 +873,11 @@ void cls_LmdFile::AnalyzeEventCrossTalk(std::vector<cls_Event>::iterator p_event
                 fhAdcInEventWithRightNeighbour[curChPixel]->Fill(v_curHitChannel, v_curHitAdc);
                 fhAdcInEventWoBaselineWithRightNeighbour[curChPixel]->Fill(v_curHitChannel, v_realADCval);
             }
+            if (curPixelFound && (topNeighborFound || bottomNeighborFound || leftNeighborFound || rightNeighborFound)) {
+                fhAdcInEventWithAtLeastOneNeighbour[curChPixel]->Fill(v_curHitChannel, v_curHitAdc);
+                fhAdcInEventWoBaselineWithAtLeastOneNeighbour[curChPixel]->Fill(v_curHitChannel, v_realADCval);
+            }
+
 
         } // End of the loop over the hits of the event
 
