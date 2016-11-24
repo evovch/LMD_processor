@@ -30,6 +30,7 @@ public slots:
     // Output
     void SelectOutputFile(void);
     void SelectTreeFile(void);
+    void SelectCrossTalkFile(void);
 
 private:
     Ui::MainWindow *ui;

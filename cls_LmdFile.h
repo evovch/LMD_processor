@@ -9,6 +9,7 @@
 #include <TH2D.h>
 
 class cls_pixelMap;
+class cls_CrossTalkAnalyser;
 
 class cls_LmdFile
 {
@@ -24,14 +25,13 @@ public:
 
     void SetOutputHistoFile(QString p_filename) { mOutputHistoFilename = p_filename.toStdString(); }
     void SetOutputTreeFile(QString p_filename) { mOutputTreeFilename = p_filename.toStdString(); }
+    void SetOutputCrossTalkFile(QString p_filename) { mOutputCrossTalkFilename = p_filename.toStdString(); }
 
 private: // methods
 
     void RunUnpacking(void);
     void RunEventBuilding(void);
     void RunEventsAnalysis(void);
-
-    void AnalyzeEventCrossTalk(std::vector<cls_Event>::iterator p_eventsIter);
 
     void InitHistos(void);
     void DeleteHistos(void);
@@ -52,6 +52,9 @@ private: // data members
     // Output tree root file name
     TString mOutputTreeFilename;
 
+    // Output root file for cross-talk analysis
+    TString mOutputCrossTalkFilename;
+
     // Storage and cursor for the raw data
     char* mRawData;
     std::streampos mSize;
@@ -69,6 +72,8 @@ private: // data members
     std::vector<cls_Event> fEvents;
 
     cls_pixelMap* fPixelMap;
+
+    cls_CrossTalkAnalyser* fCrossTalkAnalyser;
 
     float fPedestals[128];
     float fEffCalib[128];
@@ -102,20 +107,7 @@ private: // histos - move to another class
     // Event building
     TH1D* fhNumOfHitInEvent;
 
-    // Cross-talk analysis
     TH2D* fhHeatMap;
-    TH2D* fhAdcInEventNoNeighbours[64];
-    TH2D* fhAdcInEventWithTopNeighbour[64];
-    TH2D* fhAdcInEventWithBottomNeighbour[64];
-    TH2D* fhAdcInEventWithLeftNeighbour[64];
-    TH2D* fhAdcInEventWithRightNeighbour[64];
-    TH2D* fhAdcInEventWithAtLeastOneNeighbour[64];
-    TH2D* fhAdcInEventWoBaselineNoNeighbours[64];
-    TH2D* fhAdcInEventWoBaselineWithTopNeighbour[64];
-    TH2D* fhAdcInEventWoBaselineWithBottomNeighbour[64];
-    TH2D* fhAdcInEventWoBaselineWithLeftNeighbour[64];
-    TH2D* fhAdcInEventWoBaselineWithRightNeighbour[64];
-    TH2D* fhAdcInEventWoBaselineWithAtLeastOneNeighbour[64];
 };
 
 #endif // CLS_LMDFILE_H

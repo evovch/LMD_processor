@@ -30,6 +30,7 @@ SOURCES += main.cpp\
            data/cls_RootHit.cpp \
            cls_Calibrator.cpp \
            cls_pixelMap.cpp \
+           cls_CrossTalkAnalyser.cpp \
            ../build-LMD_processor-Desktop_Qt_5_7_0_GCC_64bit-Debug/eventsdict.cxx
 
 HEADERS += mainwindow.h \
@@ -51,7 +52,8 @@ HEADERS += mainwindow.h \
            data/cls_RootEvent.h \
            data/cls_RootHit.h \
            cls_Calibrator.h \
-           cls_pixelMap.h
+           cls_pixelMap.h \
+           cls_CrossTalkAnalyser.h
 
 FORMS   += mainwindow.ui \
            gui/GraphWidget.ui \

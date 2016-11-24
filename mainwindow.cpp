@@ -50,6 +50,10 @@ MainWindow::MainWindow(QWidget *parent) :
     if (inputFile.eof() || readString.length()<4) { return; }
     ui->lineEdit_6->setText(QString::fromStdString(readString.substr(4)));
 
+    getline(inputFile, readString);
+    if (inputFile.eof() || readString.length()<4) { return; }
+    ui->lineEdit_8->setText(QString::fromStdString(readString.substr(4)));
+
     // -------------------------------------------------------------------
     getline(inputFile, readString);
     if (inputFile.eof() || readString.length()<4) { return; }
@@ -85,6 +89,7 @@ MainWindow::~MainWindow()
     QString graphsFilename = ui->lineEdit_5->text();
     QString outputFilename = ui->lineEdit_3->text();
     QString outTreeFilename = ui->lineEdit_6->text();
+    QString outCrossTalkFilename = ui->lineEdit_8->text();
 
     std::ofstream outputFile("/tmp/LMD_processor.txt");
 
@@ -95,6 +100,7 @@ MainWindow::~MainWindow()
     outputFile << "GRA:" << graphsFilename.toStdString() << std::endl;
     outputFile << "OUT:" << outputFilename.toStdString() << std::endl;
     outputFile << "OTR:" << outTreeFilename.toStdString() << std::endl;
+    outputFile << "OCT:" << outCrossTalkFilename.toStdString() << std::endl;
 
     std::string tmpStr;
     size_t lastSlashPos;
@@ -149,6 +155,7 @@ void MainWindow::ImportFile(void)
     cls_LmdFile* v_inputFile = new cls_LmdFile();
     v_inputFile->SetOutputHistoFile(ui->lineEdit_3->text());
     v_inputFile->SetOutputTreeFile(ui->lineEdit_6->text());
+    v_inputFile->SetOutputCrossTalkFile(ui->lineEdit_8->text());
 
     v_inputFile->ImportPedestals(v_pedFilename);
     v_inputFile->ImportPixelMap(v_pixelMapFilename);
@@ -177,7 +184,6 @@ void MainWindow::SelectDataFile(void)
     if (v_dial.exec()) {
         v_fileNames = v_dial.selectedFiles();
         ui->lineEdit->setText(v_fileNames.at(0));
-
     }
 }
 
@@ -257,4 +263,13 @@ void MainWindow::SelectTreeFile(void)
                                QString::fromStdString(generatedFilename),
                                tr("Root files (*.root)"));
     ui->lineEdit_6->setText(v_fileName);
+}
+
+void MainWindow::SelectCrossTalkFile(void)
+{
+    std::string generatedFilename = this->fOutputFolderPath + "crosstalk.root";
+    QString v_fileName = QFileDialog::getSaveFileName(this, tr("Save cross-talk analysis file"),
+                               QString::fromStdString(generatedFilename),
+                               tr("Root files (*.root)"));
+    ui->lineEdit_8->setText(v_fileName);
 }
