@@ -93,6 +93,7 @@ private: // histos - move to another class
     TH2D* fhAdcAll;
     TH2D* fhAdcAllWoBaseline;
     TH1D* fhAdcAllSumWoBaseline;
+    TH1D* fhHitsPerChannel;
 
     // Callibrated data analysis
     TH2D* fhCalAdcAllWoBaseline1e;
@@ -113,9 +114,11 @@ private: // histos - move to another class
     TH1D* fhMinusFirstInTime;
     TH1D* fhDistanceBetwEvents;
 
+    // Heat map
+    TH2D* fhHeatMap;
+
     // Event building
     TH1D* fhNumOfHitInEvent;
-
 
     // Triggered event building
     TH1D* fhAuxPeriod;
@@ -124,16 +127,17 @@ private: // histos - move to another class
     TH1D* fhTriggerCorrelationLarge;
     TH1D* fhTriggerCorrelationInNoiseWin;
 
+    TH1D* fhNumOfHitInTriggeredEvent;
+    TH1D* fhHitsPerChannelInTriggeredEvent;
     TH2D* fhAdcInTriggeredEvent;
     TH2D* fhAdcInTriggeredEventWoBaseline;
     TH1D* fhAdcSumPerTriggeredEvent;
 
+    TH1D* fhHitsPerChannelInNoiseEvent;
     TH2D* fhAdcInNoiseEvent;
     TH2D* fhAdcInNoiseEventWoBaseline;
     TH1D* fhAdcSumPerNoiseEvent;
 
-
-    TH2D* fhHeatMap;
 };
 
 #endif // CLS_LMDFILE_H

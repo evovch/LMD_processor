@@ -69,6 +69,7 @@ void cls_LmdFile::InitHistos(void)
     fhAdcAllWoBaseline = new TH2D("adcAllWoBaseline", "ADC spectra all without baseline;channel;ADC value",
                                             128, 0., 128., 1074*2, -200., 4096.);
     fhAdcAllSumWoBaseline = new TH1D("adcAllSum", "adcAllSum;ADC value;Entries", 1074*2, -200., 4096.);
+    fhHitsPerChannel = new TH1D("fhHitsPerChannel", "Number of HIT messages per channel;Channel;Entries", 128, 0., 128.);
 
     // Callibrated data analysis
     fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  128, 0., 128., 1074*2, -1.5, 20.);
@@ -89,6 +90,9 @@ void cls_LmdFile::InitHistos(void)
     fhMinusFirstInTime = new TH1D("minusFirstInTime", "minusFirstInTime;ns;Entries", 120, 0., 120.);
     fhDistanceBetwEvents = new TH1D("distanceBetwEvents", "distanceBetwEvents;ns;Entries", 120, 0., 120.);
 
+    // Heat map
+    fhHeatMap = new TH2D("heatMap", "Heat map", 8, 0., 8., 8, 0., 8.);
+
     // Event building
     fhNumOfHitInEvent = new TH1D("numOfHitInEvent", "Number of hits in event;N;Entries", 150, 0., 150.);
 
@@ -100,19 +104,19 @@ void cls_LmdFile::InitHistos(void)
     fhTriggerCorrelationLarge = new TH1D("fhTriggerCorrelationLarge", "fhTriggerCorrelationLarge;ns;Entries", 2000, 0., 200000.);
     fhTriggerCorrelationInNoiseWin = new TH1D("fhTriggerCorrelationInNoiseWin", "fhTriggerCorrelationInNoiseWin;ns;Entries", 2000, 0., 200000.);
 
+    fhNumOfHitInTriggeredEvent = new TH1D("numOfHitInTriggeredEvent", "Number of hits in triggered event;N;Entries", 150, 0., 150.);
+    fhHitsPerChannelInTriggeredEvent = new TH1D("hitsPerChannelInTriggeredEvent", "Number of hits per channel in the triggered event;Channel;Entries", 128, 0., 128.);
     fhAdcInTriggeredEvent = new TH2D("adcInTriggeredEvent", "ADC spectra in triggered events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
     fhAdcInTriggeredEventWoBaseline = new TH2D("adcInTriggeredEventWoBaseline", "ADC spectra in triggered events without baseline;channel;ADC value",
                                             128, 0., 128., 1074*2, -200., 4096.);
     fhAdcSumPerTriggeredEvent = new TH1D("adcSumPerTriggeredEvent", "adcSumPerTriggeredEvent", 1074*5, -2000., 40960.);
 
+    fhHitsPerChannelInNoiseEvent = new TH1D("hitsPerChannelInNoiseEvent", "Number of hits per channel in noise win;Channel;Entries", 128, 0., 128.);
     fhAdcInNoiseEvent = new TH2D("adcInNoiseEvent", "ADC spectra in noise events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
     fhAdcInNoiseEventWoBaseline = new TH2D("adcInNoiseEventWoBaseline", "ADC spectra in noise events without baseline;channel;ADC value",
                                             128, 0., 128., 1074*2, -200., 4096.);
     fhAdcSumPerNoiseEvent = new TH1D("adcSumPerNoiseEvent", "adcSumPerNoiseEvent", 1074*5, -2000., 40960.);
 
-
-    // Heat map
-    fhHeatMap = new TH2D("heatMap", "Heat map", 8, 0., 8., 8, 0., 8.);
 }
 
 // =============================================================================================================================
@@ -124,6 +128,7 @@ void cls_LmdFile::DeleteHistos(void)
     delete fhAdcAll;
     delete fhAdcAllWoBaseline;
     delete fhAdcAllSumWoBaseline;
+    delete fhHitsPerChannel;
 
     // Callibrated data analysis
     delete fhCalAdcAllWoBaseline1e;
@@ -142,26 +147,30 @@ void cls_LmdFile::DeleteHistos(void)
     delete fhMinusFirstInTime;
     delete fhDistanceBetwEvents;
 
+    // Heat map
+    delete fhHeatMap;
+
     // Event building
     delete fhNumOfHitInEvent;
 
     // Triggered event building
     delete fhAuxPeriod;
+
     delete fhTriggerCorrelation;
     delete fhTriggerCorrelationInEvent;
     delete fhTriggerCorrelationLarge;
     delete fhTriggerCorrelationInNoiseWin;
 
+    delete fhNumOfHitInTriggeredEvent;
+    delete fhHitsPerChannelInTriggeredEvent;
     delete fhAdcInTriggeredEvent;
     delete fhAdcInTriggeredEventWoBaseline;
     delete fhAdcSumPerTriggeredEvent;
 
+    delete fhHitsPerChannelInNoiseEvent;
     delete fhAdcInNoiseEvent;
     delete fhAdcInNoiseEventWoBaseline;
     delete fhAdcSumPerNoiseEvent;
-
-    // Heat map
-    delete fhHeatMap;
 }
 
 // =============================================================================================================================
@@ -189,6 +198,7 @@ unsigned int cls_LmdFile::ExportHistos(void)
     fhAdcAll->Write();
     fhAdcAllWoBaseline->Write();
     fhAdcAllSumWoBaseline->Write();
+    fhHitsPerChannel->Write();
 
     // Callibrated data analysis
     fhCalAdcAllWoBaseline1e->Write();
@@ -207,28 +217,31 @@ unsigned int cls_LmdFile::ExportHistos(void)
     fhMinusFirstInTime->Write();
     fhDistanceBetwEvents->Write();
 
+    // Heat map
+    fhHeatMap->Write();
+
     // Event building
     fhNumOfHitInEvent->Write();
 
     // Triggered event building
+    gDirectory->mkdir("TrigEventBuilding");
+    gDirectory->cd("TrigEventBuilding");
     fhAuxPeriod->Write();
     fhTriggerCorrelation->Write();
     fhTriggerCorrelationInEvent->Write();
     fhTriggerCorrelationLarge->Write();
     fhTriggerCorrelationInNoiseWin->Write();
 
+    fhNumOfHitInTriggeredEvent->Write();
+    fhHitsPerChannelInTriggeredEvent->Write();
     fhAdcInTriggeredEvent->Write();
     fhAdcInTriggeredEventWoBaseline->Write();
     fhAdcSumPerTriggeredEvent->Write();
 
+    fhHitsPerChannelInNoiseEvent->Write();
     fhAdcInNoiseEvent->Write();
     fhAdcInNoiseEventWoBaseline->Write();
     fhAdcSumPerNoiseEvent->Write();
-
-
-    // Heat map
-    fhHeatMap->Write();
-
     gDirectory->cd("..");
 
     // ----------------------------------------
@@ -459,6 +472,7 @@ void cls_LmdFile::RunUnpacking(void)
                 pedMinusAdcVal = fPedestals[ch] - adc;
                 fhAdcAllWoBaseline->Fill(ch, pedMinusAdcVal);
                 fhAdcAllSumWoBaseline->Fill(pedMinusAdcVal);
+                fhHitsPerChannel->Fill(ch);
                 // Eff calibrated
                 effCalibratedADC = (fPedestals[ch] - adc)/fEffCalib[ch];
                 fhCalAdcAllWoBaseline1e->Fill(ch, effCalibratedADC);
@@ -621,8 +635,8 @@ void cls_LmdFile::RunTriggeredEventBuilding(void)
     uint64_t leftHistoLargeWinSize = 0;
     uint64_t rightHistoLargeWinSize = 200000;
 
-    uint64_t leftWinSize = -940;
-    uint64_t rightWinSize = 1010;
+    uint64_t leftWinSize = -880;   // -940
+    uint64_t rightWinSize = 980;  //  1010
 
     uint64_t leftNoiseWinSize = -40000;
     uint64_t rightNoiseWinSize= 140000;
@@ -711,6 +725,8 @@ void cls_LmdFile::RunTriggeredEventBuilding(void)
     // Loop over events
     for (v_TimeAuxMapIter=fTimeAuxMap.begin(); v_TimeAuxMapIter!=fTimeAuxMap.end(); ++v_TimeAuxMapIter)
     {
+        UInt_t v_counterOfHitsInEvent=0;
+
         uint64_t v_currentAuxTimestamp = (*v_TimeAuxMapIter).first;
         std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_hitsIter;
         for (v_hitsIter=v_lastHitsIter; v_hitsIter!=fTimeAdcMap.begin(); --v_hitsIter) {
@@ -733,6 +749,7 @@ void cls_LmdFile::RunTriggeredEventBuilding(void)
             }
             // in the window - account
             fhTriggerCorrelationInEvent->Fill(v_currentHitTimestamp-v_currentAuxTimestamp);
+            v_counterOfHitsInEvent++;
 
             uint8_t v_curHitChannel = (*v_hitsIter).second.first;
             uint16_t v_curHitAdc = (*v_hitsIter).second.second;
@@ -744,7 +761,9 @@ void cls_LmdFile::RunTriggeredEventBuilding(void)
             fhAdcInTriggeredEvent->Fill(v_curHitChannel, v_curHitAdc);
             fhAdcInTriggeredEventWoBaseline->Fill(v_curHitChannel, v_realADCval);
             fhAdcSumPerTriggeredEvent->Fill(v_realADCval);
+            fhHitsPerChannelInTriggeredEvent->Fill(v_curHitChannel);
         }
+        fhNumOfHitInTriggeredEvent->Fill(v_counterOfHitsInEvent);
     }
 
     // Run 4/4
@@ -786,6 +805,7 @@ void cls_LmdFile::RunTriggeredEventBuilding(void)
             fhAdcInNoiseEvent->Fill(v_curHitChannel, v_curHitAdc);
             fhAdcInNoiseEventWoBaseline->Fill(v_curHitChannel, v_realADCval);
             fhAdcSumPerNoiseEvent->Fill(v_realADCval);
+            fhHitsPerChannelInNoiseEvent->Fill(v_curHitChannel);
         }
     }
 }

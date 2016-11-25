@@ -43,7 +43,7 @@ Float_t cls_Calibrator::GetCalibratedVal(UInt_t ch, Float_t val)
 {
     if (!fConstructed) this->GenerateDummyLUTs();
 
-    if (ch>64) return 0.; // We basically ignore channels 64-128
+    if (ch>=64) return 0.; // We basically ignore channels 64-128
 
     // Bin number as input!
     return fLUT[ch]->GetBinContent((UInt_t)val+200);
