@@ -43,6 +43,8 @@ Float_t cls_Calibrator::GetCalibratedVal(UInt_t ch, Float_t val)
 {
     if (!fConstructed) this->GenerateDummyLUTs();
 
+    if (ch>64) return 0.; // We basically ignore channels 64-128
+
     // Bin number as input!
     return fLUT[ch]->GetBinContent((UInt_t)val+200);
 }
@@ -68,7 +70,7 @@ unsigned int cls_Calibrator::ImportGraphs(TString p_filename)
     }
 
     TString gName;
-    for (Int_t i = 0; i < nEntries; i++) {
+    for (Int_t i=0; i<nEntries; i++) {
         gName.Form("gcal%d", i);
         fGraph[i] = (TGraph*)fr.Get(gName.Data());
         if (fGraph[i] == 0) {
@@ -102,7 +104,7 @@ void cls_Calibrator::GenerateLUTs(void)
     Double_t ymin = 0;
     Double_t ymax = 0;
 
-    for (Int_t i = 0; i < 64; i++) {
+    for (Int_t i=0; i<64; i++) {
         hName.Form("calHist%d", i);
         hTitle.Form("do we need it for channel %d?", i);
 
@@ -110,7 +112,7 @@ void cls_Calibrator::GenerateLUTs(void)
 
         fGraph[i]->ComputeRange(xmin, ymin, xmax, ymax);
         // cout << xmin << "\t" << xmax << endl;
-        for (Int_t j = xmin; j <= xmax; j++) {
+        for (Int_t j=xmin; j<=xmax; j++) {
             fLUT[i]->SetBinContent(j, fGraph[i]->Eval(j));
         }
     }//for
@@ -125,7 +127,7 @@ void cls_Calibrator::GenerateDummyLUTs(void)
     const Double_t minX = -200.;    //minimal ADC channel treated
     const Double_t maxX = 4096.;    //maximal ADC channel treated
 
-    for (Int_t i = 0; i < 64; i++) {
+    for (Int_t i=0; i<64; i++) {
         hName.Form("calHist%d", i);
         hTitle.Form("do we need it for channel %d?", i);
 
@@ -157,7 +159,7 @@ unsigned int cls_Calibrator::ExportLUTs(TString p_filename)
         return 1; // FAIL
     }
 
-    for (Int_t i = 0; i < 64; i++) {
+    for (Int_t i=0; i<64; i++) {
         fLUT[i]->Write();
     }
 

@@ -28,6 +28,10 @@ using std::endl;
 
 cls_LmdFile::cls_LmdFile() :
     mRawData(nullptr),
+    fNhitsUnpacked(0),
+    fNauxUnpacked(0),
+    fNsyncUnpacked(0),
+    fNhitsPushedIntoEvents(0),
     fPixelMap(nullptr)
 {
     this->InitHistos();
@@ -67,7 +71,7 @@ void cls_LmdFile::InitHistos(void)
     fhAdcAllSumWoBaseline = new TH1D("adcAllSum", "adcAllSum;ADC value;Entries", 1074*2, -200., 4096.);
 
     // Callibrated data analysis
-    fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  64, 0., 64., 1074*2, -1.5, 20.);
+    fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  128, 0., 128., 1074*2, -1.5, 20.);
     fhCalAdcAllSumWoBaseline = new TH1D("calAdcAllSum", "adcAllSum;ADC value;Entries;calibrated", 1074*2, -2., 50.);
 
     fhCalAdcAllWoBaselineNonLinear = new TH2D("fhCalAdcAllWoBaselineNonLinear", "fhCalAdcAllWoBaselineNonLinear", 128, 0., 128., 1074*2, -200., 4096.);
@@ -88,6 +92,26 @@ void cls_LmdFile::InitHistos(void)
     // Event building
     fhNumOfHitInEvent = new TH1D("numOfHitInEvent", "Number of hits in event;N;Entries", 150, 0., 150.);
 
+    // Triggered event building
+    fhAuxPeriod = new TH1D("fhAuxPeriod", "fhAuxPeriod;ns;Entries", 1000, 0., 5000000.);
+
+    fhTriggerCorrelation = new TH1D("fhTriggerCorrelation", "fhTriggerCorrelation;ns;Entries", 3000, 500., 3500.);
+    fhTriggerCorrelationInEvent = new TH1D("fhTriggerCorrelationInEvent", "fhTriggerCorrelationInEvent;ns;Entries", 3000, 500., 3500.);
+    fhTriggerCorrelationLarge = new TH1D("fhTriggerCorrelationLarge", "fhTriggerCorrelationLarge;ns;Entries", 2000, 0., 200000.);
+    fhTriggerCorrelationInNoiseWin = new TH1D("fhTriggerCorrelationInNoiseWin", "fhTriggerCorrelationInNoiseWin;ns;Entries", 2000, 0., 200000.);
+
+    fhAdcInTriggeredEvent = new TH2D("adcInTriggeredEvent", "ADC spectra in triggered events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
+    fhAdcInTriggeredEventWoBaseline = new TH2D("adcInTriggeredEventWoBaseline", "ADC spectra in triggered events without baseline;channel;ADC value",
+                                            128, 0., 128., 1074*2, -200., 4096.);
+    fhAdcSumPerTriggeredEvent = new TH1D("adcSumPerTriggeredEvent", "adcSumPerTriggeredEvent", 1074*5, -2000., 40960.);
+
+    fhAdcInNoiseEvent = new TH2D("adcInNoiseEvent", "ADC spectra in noise events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
+    fhAdcInNoiseEventWoBaseline = new TH2D("adcInNoiseEventWoBaseline", "ADC spectra in noise events without baseline;channel;ADC value",
+                                            128, 0., 128., 1074*2, -200., 4096.);
+    fhAdcSumPerNoiseEvent = new TH1D("adcSumPerNoiseEvent", "adcSumPerNoiseEvent", 1074*5, -2000., 40960.);
+
+
+    // Heat map
     fhHeatMap = new TH2D("heatMap", "Heat map", 8, 0., 8., 8, 0., 8.);
 }
 
@@ -121,6 +145,22 @@ void cls_LmdFile::DeleteHistos(void)
     // Event building
     delete fhNumOfHitInEvent;
 
+    // Triggered event building
+    delete fhAuxPeriod;
+    delete fhTriggerCorrelation;
+    delete fhTriggerCorrelationInEvent;
+    delete fhTriggerCorrelationLarge;
+    delete fhTriggerCorrelationInNoiseWin;
+
+    delete fhAdcInTriggeredEvent;
+    delete fhAdcInTriggeredEventWoBaseline;
+    delete fhAdcSumPerTriggeredEvent;
+
+    delete fhAdcInNoiseEvent;
+    delete fhAdcInNoiseEventWoBaseline;
+    delete fhAdcSumPerNoiseEvent;
+
+    // Heat map
     delete fhHeatMap;
 }
 
@@ -170,6 +210,23 @@ unsigned int cls_LmdFile::ExportHistos(void)
     // Event building
     fhNumOfHitInEvent->Write();
 
+    // Triggered event building
+    fhAuxPeriod->Write();
+    fhTriggerCorrelation->Write();
+    fhTriggerCorrelationInEvent->Write();
+    fhTriggerCorrelationLarge->Write();
+    fhTriggerCorrelationInNoiseWin->Write();
+
+    fhAdcInTriggeredEvent->Write();
+    fhAdcInTriggeredEventWoBaseline->Write();
+    fhAdcSumPerTriggeredEvent->Write();
+
+    fhAdcInNoiseEvent->Write();
+    fhAdcInNoiseEventWoBaseline->Write();
+    fhAdcSumPerNoiseEvent->Write();
+
+
+    // Heat map
     fhHeatMap->Write();
 
     gDirectory->cd("..");
@@ -269,13 +326,27 @@ void cls_LmdFile::StartProcessing(QString p_filename)
 
     this->RunUnpacking();
     this->RunEventBuilding();
-    this->ExportEventsRootTree();
+    this->RunTriggeredEventBuilding();
+    this->PrintDebugInfo();
+    //this->ExportEventsRootTree();
     this->RunEventsAnalysis();
     this->ExportHistos();
 #ifdef DO_CROSSTALK
     this->fCrossTalkAnalyser->ExportHistos(mOutputCrossTalkFilename);
 #endif
     this->ShowHistos();
+}
+
+// =============================================================================================================================
+// =============================================================================================================================
+
+void cls_LmdFile::PrintDebugInfo(void)
+{
+    cout << "Total " << fNauxUnpacked << " AUX messages unpacked." << endl;
+    cout << "Total " << fNsyncUnpacked << " SYNC messages unpacked." << endl;
+    cout << "Total " << fNhitsUnpacked << " HIT messages unpacked." << endl;
+    cout << "Total " << fNhitsPushedIntoEvents << " hits pushed into events." << endl;
+    cout << "Mismatch = " << fNhitsUnpacked-fNhitsPushedIntoEvents << endl;
 }
 
 // =============================================================================================================================
@@ -288,6 +359,8 @@ void cls_LmdFile::RunUnpacking(void)
        cout << "Error opening file '" << mFilename.Data() << "'" << endl;
     }
     cout << "Successfully opened file '" << mFilename.Data() << "'" << endl;
+
+    cout << "Unpacking..." << endl;
 
     // Declarations
     uint32_t currentEpoch = 0;
@@ -397,7 +470,9 @@ void cls_LmdFile::RunUnpacking(void)
                 fhCalAdcAllSumWoBaselineNonLinear->Fill(calibratedVal);
 
                 curChAdcPair = std::make_pair(ch, adc);
-                fTimeAdcMap.insert(std::pair<uint32_t, std::pair<uint8_t, uint16_t> >(hitFullTime, curChAdcPair));
+                fTimeAdcMap.insert(std::pair<uint64_t, std::pair<uint8_t, uint16_t> >(hitFullTime, curChAdcPair));
+
+                fNhitsUnpacked++;
                 break;
 
              case 2: //============================================================================================================================
@@ -425,6 +500,9 @@ void cls_LmdFile::RunUnpacking(void)
                 printf ("SYN %04x\n", hitFullTime);
                 printf("Msg:3 Roc:%d SyncChn:%d EpochLSB:0 Ts:%04x Data:%x Flag:%x\n", roc, ch, timestamp, evnum, flag);
 #endif
+
+                fNsyncUnpacked++;
+
                 break;
 
              case 4: //============================================================================================================================
@@ -438,7 +516,9 @@ void cls_LmdFile::RunUnpacking(void)
                 else
                    hitFullTime = FullTimeStamp(currentEpoch-1, timestamp);
 
-                fTimeAuxMap.insert(std::pair<uint32_t, uint8_t>(hitFullTime, ch));
+                fTimeAuxMap.insert(std::pair<uint64_t, uint8_t>(hitFullTime, ch));
+
+                fNauxUnpacked++;
 
 #ifdef DEBUGMODE
                 roc = (subEvData[bufferCursor+0] >> 3) & 0x7; // 3 bits
@@ -478,6 +558,8 @@ void cls_LmdFile::RunUnpacking(void)
 
 void cls_LmdFile::RunEventBuilding(void)
 {
+    cout << "Building events..." << endl;
+
     // Last hit timestamp
     uint64_t v_lastTimestamp = 0;
 
@@ -507,11 +589,13 @@ void cls_LmdFile::RunEventBuilding(void)
 
             // This is the first hit of the event
             v_curEvent.AddHit(v_currentTimestamp, v_currentHit.first, v_currentHit.second);
+            fNhitsPushedIntoEvents++;
             v_lastTimestamp = v_currentTimestamp;
 
         } else {
             // The current hit is not so far from the last hit
             v_curEvent.AddHit(v_currentTimestamp, v_currentHit.first, v_currentHit.second);
+            fNhitsPushedIntoEvents++;
         }
 
     }
@@ -520,6 +604,189 @@ void cls_LmdFile::RunEventBuilding(void)
     if (v_curEvent.GetNhits() > 0) {
         fEvents.push_back(v_curEvent);
         v_curEvent.Clear();
+    }
+}
+
+// =============================================================================================================================
+// =============================================================================================================================
+
+void cls_LmdFile::RunTriggeredEventBuilding(void)
+{
+    cout << "Building events around triggers..." << endl;
+
+    // These are defines for the event building algorithms
+    uint64_t leftHistoWinSize = -500;
+    uint64_t rightHistoWinSize = 3500;
+
+    uint64_t leftHistoLargeWinSize = 0;
+    uint64_t rightHistoLargeWinSize = 200000;
+
+    uint64_t leftWinSize = -940;
+    uint64_t rightWinSize = 1010;
+
+    uint64_t leftNoiseWinSize = -40000;
+    uint64_t rightNoiseWinSize= 140000;
+
+
+    UInt_t v_auxCounter = 0;
+    uint64_t v_lastAuxTs = 0;
+
+    std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_lastHitsIter;
+
+    std::multimap< uint64_t, uint8_t >::iterator v_TimeAuxMapIter;
+
+    // Run 1/4
+
+    v_lastHitsIter = fTimeAdcMap.begin();
+    // Loop over events
+    for (v_TimeAuxMapIter=fTimeAuxMap.begin(); v_TimeAuxMapIter!=fTimeAuxMap.end(); ++v_TimeAuxMapIter)
+    {
+        uint64_t v_currentAuxTimestamp = (*v_TimeAuxMapIter).first;
+        std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_hitsIter;
+        for (v_hitsIter=v_lastHitsIter; v_hitsIter!=fTimeAdcMap.begin(); --v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            // As soon as we get one step left from the left window boundary - stop searching
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftHistoLargeWinSize) {
+                break;
+            }
+        }
+        // after this loop the v_hitsIter iterator is before the trigger window
+        for (/*no action here*/; v_hitsIter!=fTimeAdcMap.end(); ++v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftHistoLargeWinSize) {   // before the window - skip
+                continue;
+            }
+            if (v_currentHitTimestamp > v_currentAuxTimestamp+rightHistoLargeWinSize) {   // after the window - skip
+                // store the first unused hit in the map after the right window bound
+                v_lastHitsIter = v_hitsIter;
+                break;
+            }
+            // in the window - account
+            fhTriggerCorrelationLarge->Fill(v_currentHitTimestamp-v_currentAuxTimestamp);
+        }
+
+        // Get the laser period
+        if (v_auxCounter>0) {
+            uint64_t lastAuxTimeDiff = v_currentAuxTimestamp - v_lastAuxTs;
+            fhAuxPeriod->Fill(lastAuxTimeDiff);
+        }
+        v_lastAuxTs = v_currentAuxTimestamp;
+        v_auxCounter++;
+    }
+
+    // Run 2/4
+
+    v_lastHitsIter = fTimeAdcMap.begin();
+    // Loop over events
+    for (v_TimeAuxMapIter=fTimeAuxMap.begin(); v_TimeAuxMapIter!=fTimeAuxMap.end(); ++v_TimeAuxMapIter)
+    {
+        uint64_t v_currentAuxTimestamp = (*v_TimeAuxMapIter).first;
+        std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_hitsIter;
+        for (v_hitsIter=v_lastHitsIter; v_hitsIter!=fTimeAdcMap.begin(); --v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            // As soon as we get one step left from the left window boundary - stop searching
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftHistoWinSize) {
+                break;
+            }
+        }
+        // after this loop the v_hitsIter iterator is before the trigger window
+        for (/*no action here*/; v_hitsIter!=fTimeAdcMap.end(); ++v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftHistoWinSize) {   // before the window - skip
+                continue;
+            }
+            if (v_currentHitTimestamp > v_currentAuxTimestamp+rightHistoWinSize) {   // after the window - skip
+                // store the first unused hit in the map after the right window bound
+                v_lastHitsIter = v_hitsIter;
+                break;
+            }
+            // in the window - account
+            fhTriggerCorrelation->Fill(v_currentHitTimestamp-v_currentAuxTimestamp);
+        }
+    }
+
+    // Run 3/4
+
+    v_lastHitsIter = fTimeAdcMap.begin();
+    // Loop over events
+    for (v_TimeAuxMapIter=fTimeAuxMap.begin(); v_TimeAuxMapIter!=fTimeAuxMap.end(); ++v_TimeAuxMapIter)
+    {
+        uint64_t v_currentAuxTimestamp = (*v_TimeAuxMapIter).first;
+        std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_hitsIter;
+        for (v_hitsIter=v_lastHitsIter; v_hitsIter!=fTimeAdcMap.begin(); --v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            // As soon as we get one step left from the left window boundary - stop searching
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftWinSize) {
+                break;
+            }
+        }
+        // after this loop the v_hitsIter iterator is before the trigger window
+        for (/*no action here*/; v_hitsIter!=fTimeAdcMap.end(); ++v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftWinSize) {   // before the window - skip
+                continue;
+            }
+            if (v_currentHitTimestamp > v_currentAuxTimestamp+rightWinSize) {   // after the window - skip
+                // store the first unused hit in the map after the right window bound
+                v_lastHitsIter = v_hitsIter;
+                break;
+            }
+            // in the window - account
+            fhTriggerCorrelationInEvent->Fill(v_currentHitTimestamp-v_currentAuxTimestamp);
+
+            uint8_t v_curHitChannel = (*v_hitsIter).second.first;
+            uint16_t v_curHitAdc = (*v_hitsIter).second.second;
+
+            // Extract REAL ADC value by subtracting the pedestal
+            //TODO check data types and casting...
+            double v_realADCval = (double)fPedestals[v_curHitChannel] - (double)v_curHitAdc;
+
+            fhAdcInTriggeredEvent->Fill(v_curHitChannel, v_curHitAdc);
+            fhAdcInTriggeredEventWoBaseline->Fill(v_curHitChannel, v_realADCval);
+            fhAdcSumPerTriggeredEvent->Fill(v_realADCval);
+        }
+    }
+
+    // Run 4/4
+
+    v_lastHitsIter = fTimeAdcMap.begin();
+    // Loop over events
+    for (v_TimeAuxMapIter=fTimeAuxMap.begin(); v_TimeAuxMapIter!=fTimeAuxMap.end(); ++v_TimeAuxMapIter)
+    {
+        uint64_t v_currentAuxTimestamp = (*v_TimeAuxMapIter).first;
+        std::multimap< uint64_t, std::pair<uint8_t, uint16_t> >::iterator v_hitsIter;
+        for (v_hitsIter=v_lastHitsIter; v_hitsIter!=fTimeAdcMap.begin(); --v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            // As soon as we get one step left from the left window boundary - stop searching
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftNoiseWinSize) {
+                break;
+            }
+        }
+        // after this loop the v_hitsIter iterator is before the trigger window
+        for (/*no action here*/; v_hitsIter!=fTimeAdcMap.end(); ++v_hitsIter) {
+            uint64_t v_currentHitTimestamp = (*v_hitsIter).first;
+            if (v_currentHitTimestamp < v_currentAuxTimestamp-leftNoiseWinSize) {   // before the window - skip
+                continue;
+            }
+            if (v_currentHitTimestamp > v_currentAuxTimestamp+rightNoiseWinSize) {   // after the window - skip
+                // store the first unused hit in the map after the right window bound
+                v_lastHitsIter = v_hitsIter;
+                break;
+            }
+            // in the window - account
+            fhTriggerCorrelationInNoiseWin->Fill(v_currentHitTimestamp-v_currentAuxTimestamp);
+
+            uint8_t v_curHitChannel = (*v_hitsIter).second.first;
+            uint16_t v_curHitAdc = (*v_hitsIter).second.second;
+
+            // Extract REAL ADC value by subtracting the pedestal
+            //TODO check data types and casting...
+            double v_realADCval = (double)fPedestals[v_curHitChannel] - (double)v_curHitAdc;
+
+            fhAdcInNoiseEvent->Fill(v_curHitChannel, v_curHitAdc);
+            fhAdcInNoiseEventWoBaseline->Fill(v_curHitChannel, v_realADCval);
+            fhAdcSumPerNoiseEvent->Fill(v_realADCval);
+        }
     }
 }
 
@@ -585,6 +852,8 @@ unsigned int cls_LmdFile::ExportEventsRootTree()
 
 void cls_LmdFile::RunEventsAnalysis(void)
 {
+    cout << "Performing events analysis..." << endl;
+
     // Fill the baseline histograms from the pedestals
     for (unsigned int i=0; i<128; i++) {
         fhAdcBaseline->Fill(i, fPedestals[i]);
@@ -702,7 +971,7 @@ void cls_LmdFile::RunEventsAnalysis(void)
             UInt_t v_col;
 
             if (fPixelMap->GetPixelCoords(v_curHitChannel, &v_row, &v_col) == 0)  {
-                cout << "Error " << "ch=" << (UInt_t)(v_curHitChannel) << "\trow=" << v_row << "\tcol=" << v_col << endl;
+                //cout << "Error " << "ch=" << (UInt_t)(v_curHitChannel) << "\trow=" << v_row << "\tcol=" << v_col << endl;
             } else {
                 fhHeatMap->Fill(v_col, 7-v_row);
             }

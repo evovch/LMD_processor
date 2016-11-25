@@ -31,6 +31,7 @@ private: // methods
 
     void RunUnpacking(void);
     void RunEventBuilding(void);
+    void RunTriggeredEventBuilding(void);
     void RunEventsAnalysis(void);
 
     void InitHistos(void);
@@ -40,6 +41,8 @@ private: // methods
     unsigned int ExportEventsRootTree(void);
 
     void ShowHistos(void);
+
+    void PrintDebugInfo(void);
 
 private: // data members
 
@@ -67,6 +70,12 @@ private: // data members
     // pair full time - aux channel
     std::multimap< uint64_t, uint8_t > fTimeAuxMap;
     // ----------------------------------------------------------------------------------
+
+    // Debug counters for the event building
+    UInt_t fNhitsUnpacked;
+    UInt_t fNauxUnpacked;
+    UInt_t fNsyncUnpacked;
+    UInt_t fNhitsPushedIntoEvents;
 
     // Container for the data after event building
     std::vector<cls_Event> fEvents;
@@ -106,6 +115,23 @@ private: // histos - move to another class
 
     // Event building
     TH1D* fhNumOfHitInEvent;
+
+
+    // Triggered event building
+    TH1D* fhAuxPeriod;
+    TH1D* fhTriggerCorrelation;
+    TH1D* fhTriggerCorrelationInEvent;
+    TH1D* fhTriggerCorrelationLarge;
+    TH1D* fhTriggerCorrelationInNoiseWin;
+
+    TH2D* fhAdcInTriggeredEvent;
+    TH2D* fhAdcInTriggeredEventWoBaseline;
+    TH1D* fhAdcSumPerTriggeredEvent;
+
+    TH2D* fhAdcInNoiseEvent;
+    TH2D* fhAdcInNoiseEventWoBaseline;
+    TH1D* fhAdcSumPerNoiseEvent;
+
 
     TH2D* fhHeatMap;
 };
