@@ -26,6 +26,7 @@ public:
     void SetOutputHistoFile(QString p_filename) { mOutputHistoFilename = p_filename.toStdString(); }
     void SetOutputTreeFile(QString p_filename) { mOutputTreeFilename = p_filename.toStdString(); }
     void SetOutputCrossTalkFile(QString p_filename) { mOutputCrossTalkFilename = p_filename.toStdString(); }
+    void SetShowHistograms(Bool_t p_value) { fShowHistograms = p_value; }
 
 private: // methods
 
@@ -86,6 +87,8 @@ private: // data members
 
     float fPedestals[128];
     float fEffCalib[128];
+
+    Bool_t fShowHistograms;
 
 private: // histos - move to another class
 

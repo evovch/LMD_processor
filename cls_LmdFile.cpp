@@ -32,7 +32,8 @@ cls_LmdFile::cls_LmdFile() :
     fNauxUnpacked(0),
     fNsyncUnpacked(0),
     fNhitsPushedIntoEvents(0),
-    fPixelMap(nullptr)
+    fPixelMap(nullptr),
+    fShowHistograms(kFALSE)
 {
     this->InitHistos();
 
@@ -260,9 +261,9 @@ unsigned int cls_LmdFile::ExportHistos(void)
 
 void cls_LmdFile::ShowHistos(void)
 {
-    /*cls_HistoWidget* v_histoW = new cls_HistoWidget(fhAdcSumPerEvent);
+    cls_HistoWidget* v_histoW = new cls_HistoWidget(fhAdcSumPerEvent);
     v_histoW->show();
-    */
+
 
     //TODO implement what you want here
 }
@@ -341,13 +342,21 @@ void cls_LmdFile::StartProcessing(QString p_filename)
     this->RunEventBuilding();
     this->RunTriggeredEventBuilding();
     this->PrintDebugInfo();
-    //this->ExportEventsRootTree();
+    if (mOutputTreeFilename.Length() != 0) {
+        this->ExportEventsRootTree();
+    }
     this->RunEventsAnalysis();
-    this->ExportHistos();
+    if (mOutputHistoFilename.Length() != 0) {
+        this->ExportHistos();
+    }
 #ifdef DO_CROSSTALK
     this->fCrossTalkAnalyser->ExportHistos(mOutputCrossTalkFilename);
 #endif
-    this->ShowHistos();
+    if (fShowHistograms) {
+        this->ShowHistos();
+    }
+
+//    Info()
 }
 
 // =============================================================================================================================
