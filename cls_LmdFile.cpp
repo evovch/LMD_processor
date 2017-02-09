@@ -344,10 +344,14 @@ void cls_LmdFile::StartProcessing(QString p_filename)
     this->PrintDebugInfo();
     if (mOutputTreeFilename.Length() != 0) {
         this->ExportEventsRootTree();
+    } else {
+        Warning("cls_LmdFile::StartProcessing", "Output tree filename was not set; file wasn't created.");
     }
     this->RunEventsAnalysis();
     if (mOutputHistoFilename.Length() != 0) {
         this->ExportHistos();
+    } else {
+        Warning("cls_LmdFile::StartProcessing", "Output histograms filename was not set; file wasn't created.");
     }
 #ifdef DO_CROSSTALK
     this->fCrossTalkAnalyser->ExportHistos(mOutputCrossTalkFilename);
@@ -356,7 +360,7 @@ void cls_LmdFile::StartProcessing(QString p_filename)
         this->ShowHistos();
     }
 
-//    Info()
+    Info("cls_LmdFile::StartProcessing", "Processing succesfully finished.");
 }
 
 // =============================================================================================================================
