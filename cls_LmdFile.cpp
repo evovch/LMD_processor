@@ -310,6 +310,8 @@ void cls_LmdFile::ImportPixelMap(QString p_filename)
 
 void cls_LmdFile::ImportEffCalib(QString p_filename)
 {
+    Info("cls_LmdFile::ImportEffCalib", "Importing calibration parameters from file %s.", p_filename.toStdString().data());
+
     std::ifstream infile(p_filename.toStdString());
 
     int ch;
