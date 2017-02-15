@@ -310,6 +310,11 @@ void cls_LmdFile::ImportPixelMap(QString p_filename)
 
 void cls_LmdFile::ImportEffCalib(QString p_filename)
 {
+    if (p_filename.toStdString().length()==0) {
+        Warning("cls_LmdFile::ImportEffCalib", "File with 1e calibration parameters was not set.");
+        return;
+    }
+
     Info("cls_LmdFile::ImportEffCalib", "Importing calibration parameters from file %s.", p_filename.toStdString().data());
 
     std::ifstream infile(p_filename.toStdString());
@@ -329,6 +334,13 @@ void cls_LmdFile::ImportEffCalib(QString p_filename)
 
 void cls_LmdFile::ImportGraphsFile(QString p_filename)
 {
+    if (p_filename.toStdString().length()==0) {
+        Warning("cls_LmdFile::ImportGraphsFile", "File with graphs for non-linearity correction was not set.");
+        return;
+    }
+
+    Info("cls_LmdFile::ImportGraphsFile", "Importing graphs for non-linearity correction from file %s.", p_filename.toStdString().data());
+
     TString v_filename(p_filename.toStdString());
     cls_Calibrator::Instance().ImportGraphs(v_filename);
 }
