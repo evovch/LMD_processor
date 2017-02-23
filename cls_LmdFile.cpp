@@ -40,6 +40,72 @@ cls_LmdFile::cls_LmdFile() :
     for (unsigned int i=0; i<128; i++) fEffCalib[i] = 0.;
     for (unsigned int i=0; i<128; i++) fPedestals[i] = 0.;
 
+    fPedestalsCorrection[0] = 25;
+    fPedestalsCorrection[1] = 19;
+    fPedestalsCorrection[2] = 23;
+    fPedestalsCorrection[3] = 21;
+    fPedestalsCorrection[4] = 21;
+    fPedestalsCorrection[5] = 19;
+    fPedestalsCorrection[6] = 27;
+    fPedestalsCorrection[7] =	25;
+    fPedestalsCorrection[8] =	23;
+    fPedestalsCorrection[9] =	-3;
+    fPedestalsCorrection[10] =	27;
+    fPedestalsCorrection[11] =	23;
+    fPedestalsCorrection[12] =	1;
+    fPedestalsCorrection[13] =	1;
+    fPedestalsCorrection[14] =	3;
+    fPedestalsCorrection[15] =	23;
+    fPedestalsCorrection[16] =	27;
+    fPedestalsCorrection[17] =	19;
+    fPedestalsCorrection[18] =	25;
+    fPedestalsCorrection[19] =	17;
+    fPedestalsCorrection[20] =	19;
+    fPedestalsCorrection[21] =	29;
+    fPedestalsCorrection[22] =	15;
+    fPedestalsCorrection[23] =	21;
+    fPedestalsCorrection[24] =	19;
+    fPedestalsCorrection[25] =	25;
+    fPedestalsCorrection[26] =	1;
+    fPedestalsCorrection[27] =	21;
+    fPedestalsCorrection[28] =	21;
+    fPedestalsCorrection[29] =	19;
+    fPedestalsCorrection[30] =	17;
+    fPedestalsCorrection[31] =	3;
+    fPedestalsCorrection[32] =	17;
+    fPedestalsCorrection[33] =	21;
+    fPedestalsCorrection[34] =	21;
+    fPedestalsCorrection[35] =	25;
+    fPedestalsCorrection[36] =	21;
+    fPedestalsCorrection[37] =	23;
+    fPedestalsCorrection[38] =	15;
+    fPedestalsCorrection[39] =	23;
+    fPedestalsCorrection[40] =	15;
+    fPedestalsCorrection[41] =	19;
+    fPedestalsCorrection[42] =	-1;
+    fPedestalsCorrection[43] =	15;
+    fPedestalsCorrection[44] =	15;
+    fPedestalsCorrection[45] =	-3;
+    fPedestalsCorrection[46] =	19;
+    fPedestalsCorrection[47] =	11;
+    fPedestalsCorrection[48] =	23;
+    fPedestalsCorrection[49] =	19;
+    fPedestalsCorrection[50] =	19;
+    fPedestalsCorrection[51] =	15;
+    fPedestalsCorrection[52] =	19;
+    fPedestalsCorrection[53] =	3;
+    fPedestalsCorrection[54] =	21;
+    fPedestalsCorrection[55] =	25;
+    fPedestalsCorrection[56] =	27;
+    fPedestalsCorrection[57] =	17;
+    fPedestalsCorrection[58] =	19;
+    fPedestalsCorrection[59] =	17;
+    fPedestalsCorrection[60] =	-3;
+    fPedestalsCorrection[61] =	17;
+    fPedestalsCorrection[62] =	13;
+    fPedestalsCorrection[63] =	21;
+
+
 #ifdef DO_CROSSTALK
     fCrossTalkAnalyser = new cls_CrossTalkAnalyser();
 #endif
@@ -76,8 +142,15 @@ void cls_LmdFile::InitHistos(void)
     fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  128, 0., 128., 1074*2, -1.5, 20.);
     fhCalAdcAllSumWoBaseline = new TH1D("calAdcAllSum", "adcAllSum;ADC value;Entries;calibrated", 1074*2, -2., 50.);
 
-    fhCalAdcAllWoBaselineNonLinear = new TH2D("fhCalAdcAllWoBaselineNonLinear", "fhCalAdcAllWoBaselineNonLinear", 128, 0., 128., 1074*2, -200., 4096.);
-    fhCalAdcAllSumWoBaselineNonLinear = new TH1D("fhCalAdcAllSumWoBaselineNonLinear", "fhCalAdcAllSumWoBaselineNonLinear", 1074*2, -200., 4096.);
+    // corrected data for non-linearity
+    fhAdcAllWoBaselineNonLinear = new TH2D("fhAdcAllWoBaselineNonLinear", "Amplitudes corrected for non-linearity", 128, 0., 128., 1074*2, -200., 4096.);
+    fhAdcAllSumWoBaselineNonLinear = new TH1D("fhAdcAllSumWoBaselineNonLinear", "Amplitudes corrected for non-linearity: sum", 1074*2, -200., 4096.);
+//    fhCalAdcAllWoBaselineNonLinear = new TH2D("cal1eAdcWoBaselineNonLinear", "1e corrected for non-linearity", 64, 0., 64., 1074*2, -0.5, 20.);
+//    fhAdcAllSumWoBaselineNonLinear = new TH1D("cal1eAdcSumWoBaselineNonLinear", "1e corrected for non-linearity", 1074*2, -0.5, 20.);
+
+    //corrected for NL pedestals
+    fhAdcAllWoBaselineNLcorr = new TH2D("fhAdcAllWoBaselineNLcorr", "Two star amplitudes", 64, 0., 64., 1074*2, -200., 4096.);
+    fhAdcAllSumWoBaselineNLcorr = new TH1D("fhAdcAllSumWoBaselineNLcorr", "Two star amplitudes: sum", 1074*2, -200., 4096.);
 
     // Processed data analysis
     fhAdcInEvent = new TH2D("adcInEvent", "ADC spectra in events;channel;ADC value", 128, 0., 128., 1024, 0., 4096.);
@@ -135,8 +208,14 @@ void cls_LmdFile::DeleteHistos(void)
     delete fhCalAdcAllWoBaseline1e;
     delete fhCalAdcAllSumWoBaseline;
 
-    delete fhCalAdcAllWoBaselineNonLinear;
-    delete fhCalAdcAllSumWoBaselineNonLinear;
+    delete fhAdcAllWoBaselineNonLinear;
+    delete fhAdcAllSumWoBaselineNonLinear;
+
+    delete fhAdcAllWoBaselineNLcorr;
+    delete fhAdcAllSumWoBaselineNLcorr;
+
+//    delete fhCalAdcAllWoBaselineNonLinear;
+//    delete fhAdcAllSumWoBaselineNonLinear;
 
     // Processed data analysis
     delete fhAdcInEvent;
@@ -205,8 +284,14 @@ unsigned int cls_LmdFile::ExportHistos(void)
     fhCalAdcAllWoBaseline1e->Write();
     fhCalAdcAllSumWoBaseline->Write();
 
-    fhCalAdcAllWoBaselineNonLinear->Write();
-    fhCalAdcAllSumWoBaselineNonLinear->Write();
+    //corrected data
+    fhAdcAllWoBaselineNonLinear->Write();
+    fhAdcAllSumWoBaselineNonLinear->Write();
+
+    fhAdcAllWoBaselineNLcorr->Write();
+    fhAdcAllSumWoBaselineNLcorr->Write();
+//    fhCalAdcAllWoBaselineNonLinear->Write();
+//    fhAdcAllSumWoBaselineNonLinear->Write();
 
     // Processed data analysis
     fhAdcInEvent->Write();
@@ -325,7 +410,7 @@ void cls_LmdFile::ImportEffCalib(QString p_filename)
     //TODO by now only 64
     for (unsigned int i=0; i<64; i++) {
         infile >> ch >> val;
-        fEffCalib[ch] = val;
+        fEffCalib[ch] = val/f1ePosCorrection;
     }
 }
 
@@ -356,17 +441,20 @@ void cls_LmdFile::StartProcessing(QString p_filename)
     this->RunEventBuilding();
     this->RunTriggeredEventBuilding();
     this->PrintDebugInfo();
+
     if (mOutputTreeFilename.Length() != 0) {
         this->ExportEventsRootTree();
     } else {
         Warning("cls_LmdFile::StartProcessing", "Output tree filename was not set; file wasn't created.");
     }
-    this->RunEventsAnalysis();
+
     if (mOutputHistoFilename.Length() != 0) {
+        this->RunEventsAnalysis();
         this->ExportHistos();
     } else {
         Warning("cls_LmdFile::StartProcessing", "Output histograms filename was not set; file wasn't created.");
     }
+
 #ifdef DO_CROSSTALK
     this->fCrossTalkAnalyser->ExportHistos(mOutputCrossTalkFilename);
 #endif
@@ -455,7 +543,8 @@ void cls_LmdFile::RunUnpacking(void)
              type = subEvData[bufferCursor+0] & 0x7; // 3 bits
 
              Double_t effCalibratedADC;
-             Double_t calibratedVal;
+             Double_t correctedVal;
+             Double_t correctedCalCoef;
              Double_t pedMinusAdcVal;
 
              switch (type) {
@@ -505,10 +594,19 @@ void cls_LmdFile::RunUnpacking(void)
                 fhCalAdcAllWoBaseline1e->Fill(ch, effCalibratedADC);
                 fhCalAdcAllSumWoBaseline->Fill(effCalibratedADC);
 
-                // Calibrated using LUTs
-                calibratedVal = cls_Calibrator::Instance().GetCalibratedVal(ch, pedMinusAdcVal);
-                fhCalAdcAllWoBaselineNonLinear->Fill(ch, calibratedVal);
-                fhCalAdcAllSumWoBaselineNonLinear->Fill(calibratedVal);
+                // corrected using LUTs
+                correctedVal = cls_Calibrator::Instance().GetCalibratedVal(ch, pedMinusAdcVal);
+                fhAdcAllWoBaselineNonLinear->Fill(ch, correctedVal);
+                fhAdcAllSumWoBaselineNonLinear->Fill(correctedVal);
+
+                // corrected with regard to NL pedestals
+                fhAdcAllWoBaselineNLcorr->Fill(ch, correctedVal - fPedestalsCorrection[ch]);
+                fhAdcAllSumWoBaselineNLcorr->Fill(correctedVal - fPedestalsCorrection[ch]);
+
+                //we calculate corrected calibration coefficient each time but it may be performed only one time for all events
+                correctedCalCoef = cls_Calibrator::Instance().GetCalibratedVal(ch, fEffCalib[ch]);
+//                fhCalAdcAllWoBaselineNonLinear->Fill(ch, correctedVal/correctedCalCoef);
+//                fhAdcAllSumWoBaselineNonLinear->Fill(correctedVal/correctedCalCoef);
 
                 curChAdcPair = std::make_pair(ch, adc);
                 fTimeAdcMap.insert(std::pair<uint64_t, std::pair<uint8_t, uint16_t> >(hitFullTime, curChAdcPair));

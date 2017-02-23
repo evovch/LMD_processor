@@ -86,8 +86,15 @@ private: // data members
 
     cls_CrossTalkAnalyser* fCrossTalkAnalyser;
 
+    // calibration parameters
     float fPedestals[128];
     float fEffCalib[128];
+        //position of 1e peak facticaly corresponds to
+        // (f1ePosCorrection) one-photoelectrons
+        //and the fEffCalib should be divided by this number;
+        //This is realized inside this->ImportEffCalib(...)
+    const float f1ePosCorrection = 1.18;
+    float fPedestalsCorrection[64];
 
     Bool_t fShowHistograms;
 
@@ -104,9 +111,18 @@ private: // histos - move to another class
     TH1D* fhCalAdcAllSumWoBaseline;
 //    TH2D* fhCalAdcAllSumWoBaseline
 
-    // With calibration using LUTs
-    TH2D* fhCalAdcAllWoBaselineNonLinear;
-    TH1D* fhCalAdcAllSumWoBaselineNonLinear;
+    // With correction using LUTs
+    TH2D* fhAdcAllWoBaselineNonLinear;
+    TH1D* fhAdcAllSumWoBaselineNonLinear;
+
+    // With correction for pedestals A*
+    TH2D* fhAdcAllWoBaselineNLcorr;
+    TH1D* fhAdcAllSumWoBaselineNLcorr;
+
+//    TH2D* fhCalAdcAllWoBaselineNonLinear;
+//    TH1D* fhAdcAllSumWoBaselineNonLinear;
+
+
 
     // Processed data analysis
     TH2D* fhAdcInEvent;

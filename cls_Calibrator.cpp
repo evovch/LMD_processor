@@ -46,7 +46,8 @@ Float_t cls_Calibrator::GetCalibratedVal(UInt_t ch, Float_t val)
     if (ch>=64) return 0.; // We basically ignore channels 64-128
 
     // Bin number as input!
-    return fLUT[ch]->GetBinContent((UInt_t)val+200);
+//    return fLUT[ch]->GetBinContent((UInt_t)val+200);
+    return fGraph[ch]->Eval(val);
 }
 
 // Return value: 0 - ok, 1 - error
