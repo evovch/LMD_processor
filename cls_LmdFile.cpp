@@ -342,9 +342,13 @@ void cls_LmdFile::StartProcessing(QString p_filename)
     this->RunEventBuilding();
     this->RunTriggeredEventBuilding();
     this->PrintDebugInfo();
-    this->ExportEventsRootTree();
+    if (mOutputTreeFilename.Length() != 0) {
+        this->ExportEventsRootTree();
+    }
     this->RunEventsAnalysis();
-    this->ExportHistos();
+    if (mOutputHistoFilename.Length() != 0) {
+        this->ExportHistos();
+    }
 #ifdef DO_CROSSTALK
     this->fCrossTalkAnalyser->ExportHistos(mOutputCrossTalkFilename);
 #endif

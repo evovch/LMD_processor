@@ -32,7 +32,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Input file:</string>
+         <string>Input file* (*.lmd)</string>
         </property>
        </widget>
       </item>
@@ -130,7 +130,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Pixel map file:</string>
+         <string>Pixel map file***</string>
         </property>
        </widget>
       </item>
@@ -175,7 +175,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Eff calib:</string>
+         <string>Eff calib</string>
         </property>
        </widget>
       </item>
@@ -272,7 +272,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Output file:</string>
+         <string>Output file** (*.root)</string>
         </property>
        </widget>
       </item>
@@ -321,7 +321,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Output tree file:</string>
+         <string>Output tree file** (*.root)</string>
         </property>
        </widget>
       </item>
@@ -366,7 +366,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Output cross-talk analysis file:</string>
+         <string>#Output cross-talk analysis file</string>
         </property>
        </widget>
       </item>
@@ -398,6 +398,13 @@
      <widget class="Line" name="line">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>ShowHists</string>
       </property>
      </widget>
     </item>
@@ -439,6 +446,27 @@
      </layout>
     </item>
     <item>
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>*  obligatory field</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string>** it seems that if only one of them is filled, application works</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>*** arbitrary field, default values built-in</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -450,6 +478,13 @@
        </size>
       </property>
      </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string># not used for the moment</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
