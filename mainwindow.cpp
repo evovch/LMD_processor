@@ -162,6 +162,9 @@ void MainWindow::ImportFile(void)
     //v_inputFile->ImportEffCalib(v_effCalibFilename);
     //v_inputFile->ImportGraphsFile(v_graphsFilename);
 
+    if (ui->checkBox->isChecked()) v_inputFile->SetShowHistograms(kTRUE);
+    else v_inputFile->SetShowHistograms(kFALSE);
+
     v_inputFile->StartProcessing(v_filename);
 
     delete v_inputFile;

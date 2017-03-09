@@ -429,6 +429,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Show histograms</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
