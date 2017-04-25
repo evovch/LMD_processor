@@ -28,7 +28,7 @@ public:
     void SetOutputCrossTalkFile(QString p_filename) { mOutputCrossTalkFilename = p_filename.toStdString(); }
     void SetShowHistograms(Bool_t p_value) { fShowHistograms = p_value; }
 
-    void SetShowHistograms(Bool_t p_value) { fShowHistograms = p_value; }
+    //void SetShowHistograms(Bool_t p_value) { fShowHistograms = p_value; }
 
 private: // methods
 
