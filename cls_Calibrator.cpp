@@ -47,7 +47,8 @@ Float_t cls_Calibrator::GetCalibratedVal(UInt_t ch, Float_t val)
 
     // Bin number as input!
 //    return fLUT[ch]->GetBinContent((UInt_t)val+200);
-    return fGraph[ch]->Eval(val);
+    if (fGraph[ch] == NULL) return val;
+    return (Float_t)fGraph[ch]->Eval(val);
 }
 
 // Return value: 0 - ok, 1 - error

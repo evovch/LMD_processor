@@ -8,6 +8,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TError.h>
+#include <TRandom3.h>
 
 class cls_pixelMap;
 class cls_CrossTalkAnalyser;
@@ -87,14 +88,17 @@ private: // data members
     cls_CrossTalkAnalyser* fCrossTalkAnalyser;
 
     // calibration parameters
-    float fPedestals[128];
-    float fEffCalib[128];
+//    float fPedestals[128];
+//    float fEffCalib[128];
+    Double_t fPedestals[128];
+    Double_t fEffCalib[128];
         //position of 1e peak facticaly corresponds to
         // (f1ePosCorrection) one-photoelectrons
         //and the fEffCalib should be divided by this number;
         //This is realized inside this->ImportEffCalib(...)
     const float f1ePosCorrection = 1.18;
     float fPedestalsCorrection[64];
+    TRandom3 calRandom;
 
     Bool_t fShowHistograms;
 

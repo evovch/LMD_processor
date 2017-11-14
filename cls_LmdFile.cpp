@@ -139,7 +139,7 @@ void cls_LmdFile::InitHistos(void)
     fhHitsPerChannel = new TH1D("fhHitsPerChannel", "Number of HIT messages per channel;Channel;Entries", 128, 0., 128.);
 
     // Callibrated data analysis
-    fhCalAdcAllWoBaseline1e = new TH2D("cal1eAdcAllWoBaseline", "ADC spectra all without baseline; channel; 1e value",  128, 0., 128., 1074*2, -1.5, 20.);
+    fhCalAdcAllWoBaseline1e = new TH2D("calAdcAll", "ADC spectra all without baseline; channel; 1e value",  64, 0., 64., 1074*2, -1.5, 50.);
     fhCalAdcAllSumWoBaseline = new TH1D("calAdcAllSum", "adcAllSum;ADC value;Entries;calibrated", 1074*2, -2., 50.);
 
     // corrected data for non-linearity
@@ -544,8 +544,12 @@ void cls_LmdFile::RunUnpacking(void)
 
              Double_t effCalibratedADC;
              Double_t correctedVal;
-             Double_t correctedCalCoef;
+             Double_t correctedValPed;
              Double_t pedMinusAdcVal;
+//             Float_t effCalibratedADC;
+//             Float_t correctedVal;
+//             Float_t correctedValPed;
+//             Float_t pedMinusAdcVal;
 
              switch (type) {
              case 0: //============================================================================================================================
@@ -582,29 +586,33 @@ void cls_LmdFile::RunUnpacking(void)
                                         (subEvData[bufferCursor+2] >> 14) & 0x1   // 1 bit overflow
                                         );
 #endif
-
+//                if (mOutputHistoFilename.Length() != 0) { continue; }
                 // Raw
                 fhAdcAll->Fill(ch, adc);
                 pedMinusAdcVal = fPedestals[ch] - adc;
                 fhAdcAllWoBaseline->Fill(ch, pedMinusAdcVal);
                 fhAdcAllSumWoBaseline->Fill(pedMinusAdcVal);
                 fhHitsPerChannel->Fill(ch);
-                // Eff calibrated
-                effCalibratedADC = (fPedestals[ch] - adc)/fEffCalib[ch];
-                fhCalAdcAllWoBaseline1e->Fill(ch, effCalibratedADC);
-                fhCalAdcAllSumWoBaseline->Fill(effCalibratedADC);
 
                 // corrected using LUTs
                 correctedVal = cls_Calibrator::Instance().GetCalibratedVal(ch, pedMinusAdcVal);
+//                correctedVal = cls_Calibrator::Instance().GetCalibratedVal(ch, pedMinusAdcVal+calRandom.Uniform(-0.5, 0.5));
                 fhAdcAllWoBaselineNonLinear->Fill(ch, correctedVal);
                 fhAdcAllSumWoBaselineNonLinear->Fill(correctedVal);
 
                 // corrected with regard to NL pedestals
-                fhAdcAllWoBaselineNLcorr->Fill(ch, correctedVal - fPedestalsCorrection[ch]);
-                fhAdcAllSumWoBaselineNLcorr->Fill(correctedVal - fPedestalsCorrection[ch]);
+                correctedValPed = correctedVal - fPedestalsCorrection[ch];
+                fhAdcAllWoBaselineNLcorr->Fill(ch, correctedValPed);
+                fhAdcAllSumWoBaselineNLcorr->Fill(correctedValPed);
+
+                // Eff calibrated
+//                effCalibratedADC = (correctedValPed)/fEffCalib[ch];
+                effCalibratedADC = (correctedValPed+calRandom.Uniform(-0.5, 0.5))/fEffCalib[ch];
+                fhCalAdcAllWoBaseline1e->Fill(ch, effCalibratedADC);
+                fhCalAdcAllSumWoBaseline->Fill(effCalibratedADC);
 
                 //we calculate corrected calibration coefficient each time but it may be performed only one time for all events
-                correctedCalCoef = cls_Calibrator::Instance().GetCalibratedVal(ch, fEffCalib[ch]);
+//                correctedCalCoef = cls_Calibrator::Instance().GetCalibratedVal(ch, fEffCalib[ch]);
 //                fhCalAdcAllWoBaselineNonLinear->Fill(ch, correctedVal/correctedCalCoef);
 //                fhAdcAllSumWoBaselineNonLinear->Fill(correctedVal/correctedCalCoef);
 
@@ -945,7 +953,7 @@ unsigned int cls_LmdFile::ExportEventsRootTree()
 
     cls_RootEvent* v_event = new cls_RootEvent();
 
-    theTree.Branch("theBranch", "cls_RootEvent", v_event);
+    theTree.Branch("theBranch.", "cls_RootEvent", v_event);
 
     ULong_t eventsCounter = 0;
 
@@ -969,9 +977,25 @@ unsigned int cls_LmdFile::ExportEventsRootTree()
             // Extract REAL ADC value by subtracting the pedestal
             //TODO check data types and casting...
             Int_t v_realADCval = (int32_t)fPedestals[v_curHitChannel] - (int32_t)v_curHitAdc;
-            Float_t calibratedAdc = cls_Calibrator::Instance().GetCalibratedVal(v_curHitChannel, v_realADCval);
 
-            //printf ("%ld\t%d\t%d\t%d\n", v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval);
+            //calibration to 1e units
+
+            // corrected using LUTs
+//            Float_t correctedVal = cls_Calibrator::Instance().GetCalibratedVal(v_curHitChannel, v_realADCval);
+
+            // corrected with regard to NL pedestals
+//            Float_t correctedValPed = correctedVal - fPedestalsCorrection[v_curHitChannel];
+
+            // Eff calibrated
+//            Float_t calibratedAdc = (correctedValPed+calRandom.Uniform(-0.5, 0.5))/fEffCalib[v_curHitChannel];
+            Float_t calibratedAdc = 0;
+//            Float_t calibratedAdc = cls_Calibrator::Instance().GetCalibratedVal(v_curHitChannel, v_realADCval);
+//            effCalibratedADC = (correctedValPed+calRandom.Uniform(-0.5, 0.5))/fEffCalib[ch];
+//            fhCalAdcAllWoBaseline1e->Fill(ch, effCalibratedADC);
+//            fhCalAdcAllSumWoBaseline->Fill(effCalibratedADC);
+
+
+//
 
             v_event->AddHit(v_curHitTime, v_curHitChannel, v_curHitAdc, v_realADCval, calibratedAdc);
 
