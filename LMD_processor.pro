@@ -61,20 +61,15 @@ FORMS   += mainwindow.ui \
 
 # Set correct path to your ROOT include directory
 
-INCLUDEPATH += /usr/include/root \
+INCLUDEPATH += $$system("root-config --incdir") \
     Go4QtRoot/ \
     data/ \
     gui/
 
 # Set correct path to your ROOT libs directory
+# maybe add -lX11
 
-LIBS += -lX11 \
-        -L/usr/lib/x86_64-linux-gnu \
-        -lGui -lCore -lRIO -lNet -lHist -lGraf -lGraf3d \
-        -lGpad -lTree -lRint -lPostscript -lMatrix \
-        -lPhysics -lMathCore -lThread -lCint \
-        -lGed -lTreePlayer \
-        -pthread -lm -ldl -rdynamic
+LIBS += $$system("root-config --libs")
 
 # Use also -lCint for ROOT5
 # and delete -lMultiProc and -lCling at the same time
